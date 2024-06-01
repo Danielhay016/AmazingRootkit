@@ -10,8 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 
-
-#define AUTH_TOKEN 0xabcdef
+#include "constants.h"
 
 struct rooty_args
 {

