@@ -170,7 +170,10 @@ void set_root(void)
     new_cred->fsuid.val = 0;
     new_cred->fsgid.val = 0;
 
-    commit_creds(new_cred);
+    if (commit_creds(new_cred))
+        pr_info("%s: set_root(): Failed to set new credentials for the task\n", MODULE_NAME);
+    else
+        pr_info("%s: set_root(): Success\n", MODULE_NAME);
 }
 
 struct s_args

