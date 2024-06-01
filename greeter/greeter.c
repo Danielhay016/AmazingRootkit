@@ -31,7 +31,6 @@
 #include "function_hooking.h"
 
 //  Define the module metadata.
-#define MODULE_NAME "greeter"
 MODULE_AUTHOR("Dave Kerr");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("A simple kernel module to greet a user");
