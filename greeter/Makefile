@@ -2,7 +2,7 @@
 obj-m += greeter.o
 
 # Set the path to the Kernel build utils.
-KBUILD=/lib/modules/5.15.0-27-generic/build/
+KBUILD=/lib/modules/$(shell uname -r)/build/
  
 default:
 	$(MAKE) -C $(KBUILD) M=$(PWD) modules

