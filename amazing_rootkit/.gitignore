@@ -1,0 +1,11 @@
+*.o
+*.o.*
+*.ko
+*.ko.*
+*.mod
+*.mod.*
+*.symvers
+*.order
+*.cmd
+
+dummy
