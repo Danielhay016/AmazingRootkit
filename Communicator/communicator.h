@@ -26,7 +26,7 @@ private:
         return size * nmemb;
     }
 
-    bool send_request_safe(std::string uri, json payload, json * response_ptr, bool post=true)
+    bool send_request_safe(std::string uri, const json & payload, json * response_ptr, bool post=true)
     {
         std::lock_guard<std::mutex> lock(curl_mtx);
         std::string response_buf
@@ -40,7 +40,7 @@ private:
             curl_slist_append(headers, "Content-Type: application/json");
             if(payload)
             {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.dump().c_str());
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.dump().c_str());
             }
         }
 
@@ -135,7 +135,7 @@ public:
         return send_request_safe(CHECK_NEW_CMD_URI, registration_payload, &response) || respose["status"] == 0;
     }
 
-    void send_artifact(json payload)
+    void send_artifact(const json & payload)
     {
         json response;
         send_request_safe(SEND_ARTIFACT, payload, &response);
