@@ -2,6 +2,7 @@
 #include <iostream>
 #include <include/nlohmann/json.hpp>
 #include <utils/crypto_utils.h>
+#include "Communicator.h"
 
 /*
 
@@ -57,7 +58,7 @@ private:
             key << module_type << "_" << index;
             payload[key.str()] = base64_artifact;
         }
-        // communicator::post_with_payload(payload);
+        communicator::instance().send_artifact(payload);
     }
 
     std::string encode_artifacts(artifact_t a)
