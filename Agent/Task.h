@@ -15,9 +15,9 @@ public:
         /**/
     };
 
-    void run()
+    void run(const json & args)
     {
-        m->run();
+        task = std::thread(&ModuleBase::run, args);
     }
 
     void stop()
