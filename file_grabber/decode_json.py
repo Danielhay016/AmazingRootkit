@@ -5,15 +5,15 @@ import base64
 import argparse
 import os
 
-def save_data_from_json(json_file_path, output_image_path):
+def save_data_from_json(json_file_path, key, output_image_path):
     try:
         # Load the JSON data from the file
         with open(json_file_path, 'r') as file:
             data = json.load(file)
         
-        base64_data = data.get('grabbed')
+        base64_data = data.get(key)
         if base64_data is None:
-            raise ValueError("The 'grabbed' key is not found in the JSON file.")
+            raise ValueError("The' key is not found in the JSON file.")
         
         decoded_data = base64.b64decode(base64_data)
         
@@ -37,7 +37,7 @@ def main():
 
     args = parser.parse_args()
 
-    save_data_from_json(args.json_file_path, args.output_path)
+    save_data_from_json(args.json_file_path, args.key, args.output_path)
 
 if __name__ == '__main__':
     main()
