@@ -7,5 +7,6 @@
 *.symvers
 *.order
 *.cmd
+C2\.env
 
 dummy
