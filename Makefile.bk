@@ -5,18 +5,20 @@
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -g
+CXXFLAGS = -std=c++11
+CXXFLAGS += -Wall -g
 
 # Libraries
-LIBS = -lboost_system -lboost_filesystem -lz -lminizip
+LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip
 
 # Directories
 BUILD_DIR = build
 
 # Executable and source files
-TARGET = $(BUILD_DIR)/grabber
-SRCS = main.cpp
-OBJS = $(BUILD_DIR)/main.o
+
+TARGET = $(BUILD_DIR)/agent
+SRCS = ./main.cpp Agent/BaseModule.cpp Agent/Task.cpp Agent/Agent.cpp
+OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/Task.o $(BUILD_DIR)/Agent.o $(BUILD_DIR)/BaseModule.o
 
 # Default target
 all: $(TARGET)
