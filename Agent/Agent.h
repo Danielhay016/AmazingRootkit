@@ -1,32 +1,24 @@
-#include "BaseModule.h"
+#pragma once
+
 #include "Task.h"
 #include <vector>
 #include <thread>
-#include "Communicator/communicator.h"
+#include <unistd.h>
 
 using namespace std;
+using json = nlohmann::json;
+
+#define DEBUG
 
 class Agent
 {
 private:
-    std::vector<Task> tasks;
+    std::vector<std::unique_ptr<Task>> tasks;
+    json config;
 
-    void run()
+    void run_all_tasks()
     {
         /**/
-    }
-
-public:
-    Agent() : agent_id(generate_agent_id()) {
-        /**/
-    }
-
-    ~Agent();
-
-    void start()
-    {
-        json config_from_c2 = communicator::getInstance().c2_registration();
-        start_from_config(config_from_c2);
     }
 
     void start_from_config(const json & config)
@@ -38,20 +30,27 @@ public:
         */
     }
 
-    void stop()
+    bool agent_register()
     {
-        for (Task t : tasks)
-        {
-            t.stop();
-        }
+        return Communicator::getInstance().c2_registration();
+    }
+
+    bool get_server_config()
+    {
+        return Communicator::getInstance().check_new_command(&config);
+    }
+
+public:
+    Agent(){
+
+    }
+
+    ~Agent()
+    {
         
     }
+
+    void start();
+
+    void stop();
 };
-
-Agent::Agent(/* args */)
-{
-}
-
-Agent::~Agent()
-{
-}

