@@ -1,0 +1,280 @@
+/* General Body Styling */
+body {
+    background-color: #0d0d0d; /* Darker background */
+    color: #eaeaea;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */    
+}
+
+/* Brand Container Styling */
+.brand-container {
+    text-align: center;
+}
+
+.brand-icon {
+    font-size: 4rem; /* Size of the icon */
+    color: #ff4c4c; /* Dominant color */
+}
+
+.brand-text {
+    font-size: 2rem; /* Size of the text */
+    color: #eaeaea;
+    margin-top: 0.5rem;
+}
+
+/* Specific Styles for Login Card */
+.login-card {
+    max-width: 400px; /* Max width for login cards */
+    margin: 0 auto; /* Center the card */
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: #1c1c1c; /* Darker sidebar */
+    width: 200px; /* Narrower width */
+    height: 100vh; /* Full height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+/* Sidebar Brand Container */
+.sidebar-brand {
+    background-color: #1e1e1e; 
+    border-bottom: 1px solid #555; 
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); 
+    background-image: linear-gradient(135deg, #1a1a1a, hsl(0, 0%, 6%)); 
+    margin-top: 1rem;
+}
+
+/* Sidebar Brand Icon */
+.sidebar-brand-icon {
+    color: #ff4c4c; 
+    font-size: 1.8rem; 
+    margin-right: 0.5rem;
+    text-shadow: 0 0 2px rgba(255, 0, 0, 0.5); 
+}
+
+/* Sidebar Brand Text */
+.sidebar-brand-text {
+    color: #e0e0e0;
+    margin-left: 0.5rem;
+    font-family: 'Arial', sans-serif;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.4); 
+}
+
+/* Sidebar Nav Items */
+.nav-item {
+    margin-bottom: 0.5rem;
+}
+
+.nav-link {
+    color: #eaeaea;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ff4c4c;
+    background-color: #2d2d2d; /* Darker background on hover */
+}
+
+.nav-link.active {
+    background-color: #2d2d2d; /* Darker background for active link */
+}
+
+/* Sidebar Collapsible Menu */
+.collapse-inner {
+    background-color: #1a1a1a;
+}
+
+.collapse-header {
+    color: #ff4c4c;
+}
+
+.collapse-item {
+    color: #eaeaea;
+}
+
+.collapse-item:hover {
+    background-color: #333; /* Darker background on hover */
+}
+
+/* Sidebar Divider */
+.sidebar-divider {
+    border-top: 1px solid #333;
+    margin: 0.5rem 0;
+}
+.card .h5.mb-0 {
+    color: #fefdfd; /* White color */
+}
+.card-header {
+    color: #ffffff; /* White color */
+}
+
+/* Change icon color to white */
+.card .fa {
+    color: #fefdfd; /* White color */
+}
+
+/* Main Content Styling */
+main {
+    margin-left: 250px;
+    padding: 2rem;
+    background-color: #0d0d0d; /* Very dark background */
+    color: #eaeaea;
+    border-radius: 8px; /* Slightly rounded corners */
+    flex: 1;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #ff4c4c;
+    border-color: #ff4c4c;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #e63939;
+    border-color: #e63939;
+}
+
+/* Card Styling */
+.card {
+    background-color: #1a1a1a; /* Very dark background */
+    border: 1px solid #333; /* Dark border */
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.card-title {
+    color: #ff4c4c;
+    font-family: 'anonymous', sans-serif;
+    font-size: 1.5rem; /* Adjust the size as needed */
+    font-weight: bold; /* Adjust the weight if needed */
+}
+
+/* Card Hover Effect */
+.card:hover {
+    background-color: #2d2d2d; /* Darker background on hover */
+    border-color: #444;
+}
+
+/* Specific Styles for Campaign Card */
+.campaign-card {
+    max-width: 400px; /* Max width for campaign cards */
+    margin: 0 auto; /* Center the card */
+}
+
+/* Specific Styles for Login Card */
+.login-card {
+    max-width: 400px; /* Max width for login cards */
+    margin: 0 auto; /* Center the card */
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+}
+
+/* Code Block Styling */
+pre {
+    background-color: #1a1a1a; /* Very dark background */
+    color: #eaeaea;
+    padding: 1rem;
+    border-radius: 8px; /* Slightly rounded corners */
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    white-space: pre-wrap;
+    border: 1px solid #333; /* Dark border */
+}
+
+/* Code Block Heading */
+pre::before {
+    display: block;
+    background-color: #1c1c1c; /* Very dark background */
+    color: #ff4c4c;
+    padding: 0.5rem;
+    font-weight: bold;
+    border-top-left-radius: 8px; /* Slightly rounded corners */
+    border-top-right-radius: 8px; /* Slightly rounded corners */
+    margin-bottom: 1rem;
+}
+
+#activities-card .chart-container {
+    width: 100%; /* Full width of the card body */
+    height: 50%; /* Full height of the card body */
+}
+#activities-card canvas {
+    width: 100% !important; /* Full width of container */
+    height: 50% !important; /* Full height of container */
+}
+
+.card-body {
+    color: white;
+}
+.card-header {
+    color: white;
+    background-color: #343a40;
+}
+.card-subtitle {
+    color: white;
+}
+pre {
+    color: #d1d1d1; /* Light grey for better contrast */
+}
+
+.scrollable-pre {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #212529;
+    padding: 10px;
+    border-radius: 0.25rem;
+    border: 1px solid #343a40;
+    font-family: 'Courier New', Courier, monospace; /* This keeps the pre text as monospace */
+}
+
+/*info.html*/ 
+.note {
+    color: #f8f9fa; /* Light color for notes */
+}
+.step {
+    margin-bottom: 1rem;
+}
+.step h6 {
+    margin-top: 1rem;
+}
+.source-code-link {
+    font-size: 0.875rem;
+    color: #d1d1d1;
+    text-decoration: none;
+}
+.source-code-link:hover {
+    text-decoration: underline;
+}
+
+.save-task-btn {
+    display: block;
+    margin: 0 auto 10px; 
+    width: auto;
+}
+
+.btn-primary.btn-block {
+    margin-top: 10px; 
+}

