@@ -4,7 +4,11 @@ CXXFLAGS = -std=c++11
 CXXFLAGS += -Wall -g
 
 # Libraries
+<<<<<<< HEAD
 LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread
+=======
+LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 
 # Directories
 SRC_DIR = . # Define your source directory

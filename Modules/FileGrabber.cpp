@@ -8,13 +8,17 @@
 #include <fstream>
 #include <random>
 #include "FileGrabber.h"
+<<<<<<< HEAD
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
+=======
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 
 // TODO: implement all the functions in the header.
 
 void FileGrabber::module_impl()
 {
+<<<<<<< HEAD
     // We only want to run once
 
     run_ = false;
@@ -308,4 +312,7 @@ int FileGrabber::parse_tasks(std::string working_dir, nlohmann::json j) {
         }
     }
     return c;
+=======
+    std::cout << args.dump() << std::endl;
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 }

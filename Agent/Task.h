@@ -31,7 +31,10 @@ public:
     void run()
     {
         task = std::thread(&BaseModule::run, m);
+<<<<<<< HEAD
         
+=======
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
     }
 
     void stop()

