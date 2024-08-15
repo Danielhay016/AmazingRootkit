@@ -8,19 +8,12 @@
 #include <fstream>
 #include <random>
 #include "FileGrabber.h"
-<<<<<<< HEAD
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
-=======
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
-
-// TODO: implement all the functions in the header.
 
 void FileGrabber::module_impl()
 {
-<<<<<<< HEAD
     // We only want to run once
-
     run_ = false;
 
     std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
@@ -66,7 +59,7 @@ void FileGrabber::module_impl()
 
         // TODO: send zip file to server
         save_artifact(ret_json);
-        
+
         // std::ofstream outFile("grabbed.json");
         // outFile << ret_json.dump(4);
         // outFile.close();
@@ -312,7 +305,4 @@ int FileGrabber::parse_tasks(std::string working_dir, nlohmann::json j) {
         }
     }
     return c;
-=======
-    std::cout << args.dump() << std::endl;
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 }

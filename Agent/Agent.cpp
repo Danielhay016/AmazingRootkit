@@ -15,11 +15,7 @@ void Agent::start()
             "1338": 
             {
                 "start_path": "/tmp/gg",
-<<<<<<< HEAD
                 "files": [".*abcd"]
-=======
-                "files": ["abcd"]
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
             }
         }
     }
@@ -27,13 +23,6 @@ void Agent::start()
     
     json config = json::parse(json_string);
 
-<<<<<<< HEAD
-=======
-    Task * t = Task::BuildTask("FILE_GRABGER", config["FILE_GRABGER"]);
-
-    tasks.push_back(std::unique_ptr<Task>(t));
-
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
     #elif
 
     unsigned tries = 0;
@@ -53,7 +42,6 @@ void Agent::start()
     #endif
 
     start_from_config(config);
-<<<<<<< HEAD
 
     while (agent_run)
     {
@@ -61,8 +49,6 @@ void Agent::start()
         sleep(60 * 60);
     }
     
-=======
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
 }
 
 

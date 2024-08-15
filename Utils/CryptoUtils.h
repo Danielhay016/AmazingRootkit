@@ -11,7 +11,6 @@
 class CryptoUtils
 {
 public:
-<<<<<<< HEAD
     static std::string base64_encode(const std::vector<unsigned char>& data) 
     {
         static const char* base64_chars =
@@ -48,8 +47,6 @@ public:
         return result;
     }
 
-=======
->>>>>>> 0a525aac6cf25fc80044469ea9b1a7edfccaaf57
     static std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len)
     {
         BIO *bio, *b64;
