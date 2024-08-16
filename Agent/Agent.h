@@ -15,7 +15,6 @@ class Agent
 private:
 
     bool agent_run;
-
     std::vector<std::unique_ptr<Task>> tasks;
     json config;
 
@@ -30,19 +29,26 @@ private:
         
     }
 
+    void add_task(Task * t, bool restart)
+    {
+        if(restart)
+        {
+            std::remove_if(tasks.begin(), tasks.end(), [t](const unique_ptr<Task> & task){ return *(task.get()) == t; });
+        }
+        tasks.push_back(std::unique_ptr<Task>(t));
+    }
+
     void start_from_config(const json & config)
     {
-        /*  
-        iterate config
-        construct each module derived class 
-        build a task
-        run all tasks
-        */
+        for (auto& el : config.items())
+        {
+            bool restart = el.value().contains("restart");
 
-        Task * t = Task::BuildTask("FILE_GRABGER", config["FILE_GRABGER"]);
+            std::string module_name = el.key();
+            Task * t = Task::BuildTask(module_name, el.value());
 
-        tasks.push_back(std::unique_ptr<Task>(t));
-        
+            add_task(t, restart);
+        }        
         run_all_tasks();
     }
 

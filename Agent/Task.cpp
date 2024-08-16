@@ -8,7 +8,7 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
     {
         throw std::runtime_error("Invalid Module");
     }
-
+    
     BaseModule * module_derived;
     
     switch (sm)
@@ -23,3 +23,8 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
 
     return new Task(module_derived);
 } 
+
+bool Task::operator==(Task * t2)
+{
+    return get_task_type() == t2->get_task_type();
+}

