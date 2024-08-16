@@ -33,8 +33,8 @@ typedef json artifact_t;
 class BaseModule
 {
 protected:
-    json args;
     std::string module_type;
+    json args;
     std::vector<json> artifacts;
     bool run_;
 
@@ -45,7 +45,7 @@ protected:
     void save_artifact(artifact_t artifact)
     {
         std::cout << "Saving artifact of " << module_type << ": " << artifact.dump() << std::endl;
-        artifacts.push_back(artifact);
+        artifacts.push_back(artifact[module_type]);
         if(artifacts.size() >= MAX_ARTIFACTS)
         {
             std::vector<artifact_t> clone;
@@ -57,7 +57,7 @@ protected:
 
     void send_artifacts(std::vector <artifact_t> artifacts)
     {
-        json payload;
+        json artifacts_array;
         unsigned index = 0;
         for(artifact_t a : artifacts)
         {
@@ -65,9 +65,12 @@ protected:
             // std::stringstream key;
             // key << module_type << "_" << index;
             // payload[key.str()] = base64_artifact;
-            payload.push_back(a);
+            artifacts_array.push_back(a);
         }
 
+        json payload;
+        payload[module_type] = artifacts_array;
+        
         std::cout << "Sending artifacts to server: " << payload.dump() << std::endl;
 
         Communicator::getInstance().send_artifact(payload);
@@ -82,6 +85,11 @@ private:
     static const char * module_names[];
 
 public:
+
+    const std::string & get_module_type()
+    {
+        return module_type;
+    }
 
     static supported_modules_enum supported_module_for_name(const std::string & module_name);
 

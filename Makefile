@@ -1,11 +1,11 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++11
-CXXFLAGS += -Wall -g
+CXXFLAGS += -Wall -g #/usr/include/curl
 
 # Libraries
 
-LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread
+LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread -lcurl
 
 # Directories
 SRC_DIR = . # Define your source directory

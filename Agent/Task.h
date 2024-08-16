@@ -36,9 +36,19 @@ public:
 
     void stop()
     {
-        m->stop();
-        task.join();
+        if (task.joinable())
+        {
+            m->stop();
+            task.join();
+        }
     }
+
+    const std::string & get_task_type()
+    {
+        return m->get_module_type();
+    }
+
+    bool operator==(Task * t2);
 
     static Task * BuildTask(const std::string & module_name, const json & args);
 };
