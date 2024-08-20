@@ -106,7 +106,7 @@ void Screenshot::x11_screenshot(std::vector<unsigned char>* data, int& width, in
     if (image == nullptr) {
         std::cerr << "Cannot get the image" << std::endl;
     }
-    std::cerr << "[+] Got screenshot image" << std::endl;
+    std::cout << "[+] Got screenshot image" << std::endl;
 
     // Resize the vector to hold the new image data
     data->resize(width * height * 3); // Assuming 3 bytes per pixel (RGBA)
@@ -130,7 +130,7 @@ void Screenshot::module_impl() {
     // We only want to run once
     run_ = false;
 
-    std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
+    std::cout << "Running" << module_type << std::endl;
     nlohmann::json ret_json;
 
     std::vector<unsigned char> data;
@@ -141,11 +141,11 @@ void Screenshot::module_impl() {
     const char* gdm_type = std::getenv("XDG_SESSION_TYPE");
     // std::cerr << "[+] gdm_type = " << gdm_type << std::endl;
     if (std::strcmp(gdm_type, "x11") == 0) {
-        std::cerr << "[+] Running on X11" << std::endl;
+        std::cout << "[+] Running on X11" << std::endl;
         x11_screenshot(&data, width, height);
     }
     else if (std::strcmp(gdm_type, "wayland") == 0) {
-        std::cerr << "Running on Wayland" << std::endl;
+        std::cout << "Running on Wayland" << std::endl;
         nlohmann::json error_msg;
         error_msg["error"] = "Running on Wayland";
         ret_json[module_type] = error_msg;
@@ -153,7 +153,7 @@ void Screenshot::module_impl() {
         return;
     }
 
-    std::cerr << "[+] Save PNG to memory" << std::endl;
+    std::cout << "[+] Save PNG to memory" << std::endl;
     std::vector<unsigned char> png_data;
     if (!save_png_to_memory(png_data, width, height, data)) {
         std::cerr << "  [-] Failed to save PNG to memory" << std::endl;
@@ -164,7 +164,7 @@ void Screenshot::module_impl() {
         return;
     }
 
-    std::cerr << "[+] Encoded image as base64" << std::endl;
+    std::cout << "[+] Encoded image as base64" << std::endl;
     std::string encoded_data = base64_encode(&png_data[0], png_data.size());
 
     ret_json[module_type] = encoded_data;
