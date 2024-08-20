@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "constants.h"
+#include "../constants.h"
 
 
 void root_me(int sockfd){
