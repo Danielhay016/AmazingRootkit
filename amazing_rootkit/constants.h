@@ -8,6 +8,20 @@
 #define TMPSZ 150
 #define TCP6_EXTENSION 27
 
+enum {
+    ROOT_ME=0,
+    ARB_ROOT,
+    HIDE_FILE,
+    HIDE_PORT,
+};
+
+struct s_args
+{
+    unsigned short cmd;
+    void *ptr;
+};
+
+
 #ifdef KERNEL_MODULE
 struct hidden_port
 {
@@ -19,12 +33,6 @@ struct hidden_file
 {
     char fname[MAX_BUF_SIZE];
     struct list_head list;
-};
-
-struct s_args
-{
-    unsigned short cmd;
-    void *ptr;
 };
 #endif
 

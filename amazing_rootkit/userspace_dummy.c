@@ -12,12 +12,6 @@
 
 #include "constants.h"
 
-struct s_args
-{
-    unsigned short cmd;
-    void *ptr;
-};
-
 
 void root_me(int sockfd){
     struct s_args s_args;
