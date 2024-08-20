@@ -4,7 +4,7 @@ void Agent::start()
 {
     // std::string json_string = R"(
     // {
-    //     "FILE_GRABGER": 
+    //     "FILE_GRABBER": 
     //     {
     //         "1337": 
     //         {
@@ -15,7 +15,8 @@ void Agent::start()
     //         {
     //             "start_path": "/tmp/gg",
     //             "files": [".*abcd"]
-    //         }
+    //         },
+    //         "restart": "1"
     //     }
     // }
     // )";

@@ -1,6 +1,6 @@
 #include "BaseModule.h"
 
-const char * BaseModule::module_names[] = { "FILE_GRABGER",  "SCREEN_SHOOTER", "COOKIE_HIJACKER" };
+const char * BaseModule::module_names[] = { "FILE_GRABBER",  "SCREEN_SHOOTER", "COOKIE_HIJACKER" };
 
 supported_modules_enum BaseModule::supported_module_for_name(const std::string & module_name)
 {

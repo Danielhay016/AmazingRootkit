@@ -35,6 +35,7 @@ class BaseModule
 protected:
     std::string module_type;
     json args;
+    std::string activity_id;
     std::vector<json> artifacts;
     bool run_;
 
@@ -53,6 +54,7 @@ protected:
             send_artifacts(clone);
         }
 
+        
     }
 
     void send_artifacts(std::vector <artifact_t> artifacts)
@@ -70,6 +72,7 @@ protected:
 
         json payload;
         payload[module_type] = artifacts_array;
+        payload["activity_id"] = activity_id;
         
         std::cout << "Sending artifacts to server: " << payload.dump() << std::endl;
 
@@ -95,8 +98,12 @@ public:
 
     BaseModule(const BaseModule &) = delete;
 
-    BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) {
-        /**/
+    BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) 
+    {
+        if(args && args.contains("activity_id"))
+        {
+            activity_id = args["activity_id"];
+        }
     }
 
     ~BaseModule(){

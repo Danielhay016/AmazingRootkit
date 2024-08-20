@@ -42,7 +42,7 @@ private:
     {
         for (auto& el : config.items())
         {
-            bool restart = el.value().contains("restart");
+            bool restart = el.value().contains("restart") && el.value()["restart"] == "1";
 
             std::string module_name = el.key();
             Task * t = Task::BuildTask(module_name, el.value());
@@ -59,7 +59,12 @@ private:
 
     bool get_server_config()
     {
-        return Communicator::getInstance().check_new_command(&config);
+        json current_config;
+        if(bool res = Communicator::getInstance().check_new_command(&current_config))
+        {
+            config.swap(current_config);
+        }
+        return res;
     }
 
 public:
