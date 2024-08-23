@@ -22,8 +22,9 @@ void Agent::start()
     // )";
     
     // json config = json::parse(json_string);
-
+    
     unsigned tries = 0;
+
     while (!agent_register())
     {
         tries += 1;

