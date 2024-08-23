@@ -53,8 +53,6 @@ protected:
             artifacts.swap(clone);
             send_artifacts(clone);
         }
-
-        
     }
 
     void send_artifacts(std::vector <artifact_t> artifacts)

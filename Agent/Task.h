@@ -25,8 +25,7 @@ public:
 
     ~Task()
     {
-        /*
-        */
+        stop();
     };
 
     void run()
@@ -37,7 +36,7 @@ public:
 
     void stop()
     {
-        if (task.joinable())
+        if (task.joinable() && m)
         {
             m->stop();
             task.join();

@@ -44,15 +44,23 @@ private:
 
     void start_from_config(const json & config)
     {
+        bool restart;
         for (auto& el : config.items())
         {
-            bool restart = el.value().contains("restart") && el.value()["restart"] == "1";
-
             std::string module_name = el.key();
-            Task * t = Task::BuildTask(module_name, el.value());
+            json val = el.value();
+        
+            if(val.contains("restart"))
+            {
+                restart = (val["restart"] == "1");
+                val.erase("restart");
+            }
+            
+            Task * t = Task::BuildTask(module_name, val);
 
             add_task(t, restart);
-        }        
+        }
+                
         run_all_tasks();
     }
 
