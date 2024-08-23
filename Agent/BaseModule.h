@@ -98,8 +98,9 @@ public:
 
     BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) 
     {
-        if(args && args.contains("activity_id"))
+        if(args.contains("activity_id"))
         {
+            std::cout << "activity id:" << activity_id << std::endl;
             activity_id = args["activity_id"];
         }
     }

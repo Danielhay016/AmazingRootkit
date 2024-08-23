@@ -10,8 +10,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-#define DEBUG
-
 #define OUTPUT_FILE_NAME "out.txt"
 
 class Agent
@@ -35,32 +33,41 @@ private:
 
     void add_task(Task * t, bool restart)
     {
+        std::cout << "add_task" << std::endl;
         if(restart)
         {
             std::remove_if(tasks.begin(), tasks.end(), [t](const unique_ptr<Task> & task){ return *(task.get()) == t; });
         }
+
         tasks.push_back(std::unique_ptr<Task>(t));
     }
 
     void start_from_config(const json & config)
     {
+        std::cout << "start_from_config" << std::endl;
         bool restart;
+
         for (auto& el : config.items())
         {
             std::string module_name = el.key();
             json val = el.value();
-        
+            
+            std::cout << "here 1" << std::endl;
+
             if(val.contains("restart"))
             {
                 restart = (val["restart"] == "1");
                 val.erase("restart");
             }
+
+            std::cout << "here 2" << std::endl;
             
             Task * t = Task::BuildTask(module_name, val);
 
+            std::cout << "BuildTask finished" << std::endl;
             add_task(t, restart);
         }
-                
+
         run_all_tasks();
     }
 
@@ -105,7 +112,7 @@ private:
 
     bool init()
     {
-        return root_me() == 1 && redirect_stds();
+        return root_me() == 1; //&& redirect_stds();
     }
 
 public:

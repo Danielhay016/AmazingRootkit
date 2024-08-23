@@ -2,6 +2,8 @@
 
 Task * Task::BuildTask(const std::string & module_name, const json & args)
 {
+    std::cout << "BuildTask with args:" << args.dump() << std::endl;
+
     supported_modules sm = BaseModule::supported_module_for_name(module_name);
     
     if(sm == supported_modules::NUM_OF_MODULES)
@@ -9,7 +11,7 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
         throw std::runtime_error("Invalid Module");
     }
     
-    BaseModule * module_derived;
+    BaseModule * module_derived = nullptr;
     
     switch (sm)
     {
