@@ -10,13 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "constants.h"
-
-struct s_args
-{
-    unsigned short cmd;
-    void *ptr;
-};
+#include "../constants.h"
 
 
 void root_me(int sockfd){

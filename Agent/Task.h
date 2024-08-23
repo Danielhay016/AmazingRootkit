@@ -4,6 +4,7 @@
 #include <iostream>
 #include "BaseModule.h"
 #include "../Modules/FileGrabber.h"
+#include "../Modules/Screenshot.h"
 
 using supported_modules = supported_modules_enum;
 

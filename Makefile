@@ -5,7 +5,7 @@ CXXFLAGS += -Wall -g #/usr/include/curl
 
 # Libraries
 
-LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread -lcurl
+LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread -lcurl -lX11 -lpng
 
 # Directories
 SRC_DIR = . # Define your source directory
