@@ -266,105 +266,103 @@
                             })
                             .catch(error => console.error('Error fetching top actions data:', error));
 
-// Fetch and render Activities Over Last 10 Days chart
-fetch('/api/last-activity')
-    .then(response => response.json())
-    .then(data => {
-        const labels = Array.from(new Set(data.dates)); // X-axis labels (unique dates)
-        const hours = data.hours; // Raw hour values for plotting
-        const actionTypes = data.action_types; // Action types for each date and hour
+                        // Fetch and render Activities Over Last 10 Days chart
+                        fetch('/api/last-activity')
+                            .then(response => response.json())
+                            .then(data => {
+                                const labels = Array.from(new Set(data.dates)); // X-axis labels (unique dates)
+                                const hours = data.hours; // Raw hour values for plotting
+                                const actionTypes = data.action_types; // Action types for each date and hour
 
-        // Generate a dataset for activity points
-        const dataset = [];
-        labels.forEach((date, index) => {
-            const dateHours = hours[index]; // Get the hour counts for the current date
-            const dateActionTypes = actionTypes[index]; // Get the action types for the current date
-            dateHours.forEach((count, hour) => {
-                if (count > 0) {
-                    dataset.push({
-                        x: date,
-                        y: hour,
-                        count: count,
-                        action_type: dateActionTypes[hour] // Add the action type to each data point
-                    });
-                }
-            });
-        });
+                                // Generate a dataset for activity points
+                                const dataset = [];
+                                labels.forEach((date, index) => {
+                                    const dateHours = hours[index]; // Get the hour counts for the current date
+                                    const dateActionTypes = actionTypes[index]; // Get the action types for the current date
+                                    dateHours.forEach((count, hour) => {
+                                        if (count > 0) {
+                                            dataset.push({
+                                                x: date,
+                                                y: hour,
+                                                count: count,
+                                                action_type: dateActionTypes[hour] // Add the action type to each data point
+                                            });
+                                        }
+                                    });
+                                });
 
-        // Define hour labels in 24-hour format for the Y-axis
-        const hourLabels = Array.from({ length: 24 }, (_, i) => i); // Hours 0 through 23
+                                // Define hour labels in 24-hour format for the Y-axis
+                                const hourLabels = Array.from({ length: 24 }, (_, i) => i); // Hours 0 through 23
 
-        // Render the chart
-        const ctx = document.getElementById('activitiesChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line', // Use line chart for continuous data
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Activity Points',
-                    data: dataset.map(point => ({ x: point.x, y: point.y })),
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: 'white'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                const point = dataset[tooltipItem.dataIndex];
-                                return `Action: ${point.action_type}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        type: 'category',
-                        labels: labels,
-                        beginAtZero: true,
-                        ticks: {
-                            color: 'white'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date',
-                            color: 'white'
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        beginAtZero: true,
-                        ticks: {
-                            color: 'white',
-                            stepSize: 1,
-                            callback: function(value) {
-                               
-                                return `${value}:00`;
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Hour',
-                            color: 'white'
-                        }
-                    }
-                }
-            }
-        });
-    })
-    .catch(error => console.error('Error fetching last activity data:', error));
-
+                                // Render the chart
+                                const ctx = document.getElementById('activitiesChart').getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'line', // Use line chart for continuous data
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Activity Points',
+                                            data: dataset.map(point => ({ x: point.x, y: point.y })),
+                                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                            borderColor: 'rgba(255, 99, 132, 1)',
+                                            borderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                                labels: {
+                                                    color: 'white'
+                                                }
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(tooltipItem) {
+                                                        const point = dataset[tooltipItem.dataIndex];
+                                                        return `Action: ${point.action_type}`;
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                type: 'category',
+                                                labels: labels,
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    color: 'white'
+                                                },
+                                                title: {
+                                                    display: true,
+                                                    text: 'Date',
+                                                    color: 'white'
+                                                }
+                                            },
+                                            y: {
+                                                type: 'linear',
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    color: 'white',
+                                                    stepSize: 1,
+                                                    callback: function(value) {
+                                                        return `${value}:00`;
+                                                    }
+                                                },
+                                                title: {
+                                                    display: true,
+                                                    text: 'Hour',
+                                                    color: 'white'
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(error => console.error('Error fetching last activity data:', error));
                     });
                 </script>
             </main>

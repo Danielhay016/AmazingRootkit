@@ -70,7 +70,7 @@ body {
 .sidebar-brand-text {
     color: #e0e0e0;
     margin-left: 0.5rem;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', sans-serif;
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.4); 
 }
 
@@ -277,4 +277,40 @@ pre {
 
 .btn-primary.btn-block {
     margin-top: 10px; 
+}
+
+
+/* Simplified styling for the results section */
+.results-container {
+    background-color: #f8f9fa; /* Light background color */
+    color: #000000; /* Black text for contrast */
+    padding: 15px; /* Less padding */
+    border-radius: 5px; /* Less rounded corners */
+    font-family: 'Poppins', sans-serif; /* Matching the overall font style */
+    box-shadow: none; /* Remove the shadow for simplicity */
+    white-space: pre-wrap; /* Preserve formatting for preformatted text */
+}
+
+/* Text styling for better readability */
+.results-container h4 {
+    color: #007bff; /* Bootstrap's primary color for headings */
+    margin-bottom: 10px; /* Less spacing after headings */
+    font-weight: 600; /* Semi-bold for emphasis */
+}
+
+.results-container p {
+    line-height: 1.5; /* Slightly reduced line spacing for readability */
+    margin-bottom: 8px; /* Less space between paragraphs */
+}
+
+/* Styling for alert message */
+.results-container .alert {
+    margin-top: 10px; /* Less space above alerts */
+}
+
+/* Responsive styling for mobile devices */
+@media (max-width: 768px) {
+    .results-container {
+        padding: 10px; /* Adjust padding for smaller screens */
+    }
 }

@@ -7,6 +7,8 @@
 *.symvers
 *.order
 *.cmd
-C2\.env
+C:\Users\Daniel.Hay\Desktop\AmazingRootkit\C2\.env
+key.pem
+cert.pem
 
 dummy
