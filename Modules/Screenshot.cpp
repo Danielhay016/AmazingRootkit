@@ -13,11 +13,12 @@
 
 using json = nlohmann::json;
 
-void Screenshot::send_err(json ret_json, std::string str){
+void Screenshot::send_err(json inner, std::string str){
     std::cerr << str << std::endl;
-    json error_msg;
-    error_msg["error"] = str;
-    ret_json[module_type] = error_msg;
+    inner["result"] = "failure";
+    inner["error"] = str;
+    json ret_json;
+    ret_json[module_type] = inner;
     save_artifact(ret_json);
 }
 
@@ -91,7 +92,10 @@ void Screenshot::module_impl() {
     run_ = false;
 
     std::cout << "Running " << module_type << std::endl;
-    json ret_json;
+    json inner;
+    inner["result"] = "unknown";
+    inner["error"] = "";
+    inner["data"] = "";
 
     std::vector<unsigned char> data;
     int width = 0;
@@ -105,7 +109,7 @@ void Screenshot::module_impl() {
         try {
             x11_screenshot(&data, width, height);
         } catch (const std::exception& e) {
-            Screenshot::send_err(ret_json, e.what());
+            Screenshot::send_err(inner, std::string("x11_screenshot: ") + e.what());
             return;
         }
     }
@@ -114,7 +118,7 @@ void Screenshot::module_impl() {
     //     return;
     // }
     else {
-        Screenshot::send_err(ret_json, "Unsupported GDM: " + std::string(gdm_type));
+        Screenshot::send_err(inner, "Unsupported GDM: " + std::string(gdm_type));
         return;
     }
 
@@ -125,18 +129,21 @@ void Screenshot::module_impl() {
     try {
         ret = save_png_to_memory(png_data, width, height, data);
     } catch (const std::exception& e) {
-        Screenshot::send_err(ret_json, std::string("save_png_to_memory:" ) + e.what());
+        Screenshot::send_err(inner, std::string("save_png_to_memory:" ) + e.what());
         return;
     }
     if (!ret) {
-        Screenshot::send_err(ret_json, "Failed to save PNG to memory");
+        Screenshot::send_err(inner, "Failed to save PNG to memory");
         return;
     }
 
     std::cout << "[+] Encode image as base64" << std::endl;
     std::string encoded_data = CryptoUtils::base64_encode(&png_data[0], png_data.size());
 
-    ret_json[module_type] = encoded_data;
+    inner["result"] = "success";
+    inner["data"] = encoded_data;
+    json ret_json;
+    ret_json[module_type] = inner;
     save_artifact(ret_json);
     return;
 }
