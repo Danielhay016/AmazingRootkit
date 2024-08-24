@@ -20,6 +20,7 @@ typedef enum SupportedModules {
         FILE_GRABBER=0,
         SCREEN_SHOOTER,
         COOKIE_HIJACKER,
+        ROOTKIT,
         NUM_OF_MODULES
     } supported_modules_enum;
 

