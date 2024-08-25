@@ -149,10 +149,22 @@
 
                         if (response.artifacts.length > 0) {
                             response.artifacts.forEach(function (artifact) {
-                                artifactsContent.append('<p><strong>' + artifact.file_name + '</strong> (' + artifact.artifact_type + ') - ' + artifact.created_at + '</p>');
+                                var artifactElement = $('<div class="artifact"></div>');
+                                artifactElement.append('<p><strong>' + artifact.file_name + '</strong> (' + artifact.artifact_type + ') - ' + artifact.created_at + '</p>');
+                                
+                                // Show content button
+                                var contentButton = $('<button class="btn btn-primary btn-sm">Show Content</button>');
+                                contentButton.on('click', function() {
+                                    var contentDisplay = $('<pre></pre>').text(atob(artifact.content)); // Decode and display content
+                                    artifactElement.append(contentDisplay);
+                                    $(this).hide(); // Hide button after clicking
+                                });
+                                artifactElement.append(contentButton);
+                                
+                                artifactsContent.append(artifactElement);
                             });
                         } else {
-                            artifactsContent.append('<p>No action has been taken for this campaign.</p>');
+                            artifactsContent.append('<p>No artifacts found for this device.</p>');
                         }
 
                         artifactsContainer.show();

