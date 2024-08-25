@@ -72,7 +72,6 @@ private:
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
-
         if (post)
         {
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
@@ -98,9 +97,9 @@ private:
             res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &content_type);
             if ((res == CURLE_OK) && content_type && std::string(content_type).find("application/json") != std::string::npos && response_ptr)  
             {
-                /* If the server sent us some json - Such as a new command */
-                std::cout << "json response from server: " << response_buf << std::endl;
+                /* If the server sent us some json - Such as a new command */    
                 *response_ptr = json::parse(response_buf);
+                std::cout << "json response from server: " << response_ptr->dump(4) << std::endl; 
             }
             else
             {

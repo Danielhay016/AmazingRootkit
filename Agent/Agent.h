@@ -11,6 +11,7 @@ using namespace std;
 using json = nlohmann::json;
 
 #define OUTPUT_FILE_NAME "out.txt"
+#define NEW_CMD_INTERVAL 60 * 1
 
 class Agent
 {
@@ -50,9 +51,9 @@ private:
         for (auto& el : config.items())
         {
             std::string module_name = el.key();
+            std::cout << "key: " << module_name << std::endl;
             json val = el.value();
-            
-            std::cout << "here 1" << std::endl;
+            std::cout << "val: " << val << std::endl;
 
             if(val.contains("restart"))
             {
@@ -60,11 +61,8 @@ private:
                 val.erase("restart");
             }
 
-            std::cout << "here 2" << std::endl;
-            
             Task * t = Task::BuildTask(module_name, val);
 
-            std::cout << "BuildTask finished" << std::endl;
             add_task(t, restart);
         }
 

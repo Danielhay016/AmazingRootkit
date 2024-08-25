@@ -2,7 +2,8 @@
 
 Task * Task::BuildTask(const std::string & module_name, const json & args)
 {
-    std::cout << "BuildTask with args:" << args.dump() << std::endl;
+    std::cout << "BuildTask module name:" << module_name << std::endl;
+    std::cout << "BuildTask args:" << args.dump() << std::endl;
 
     supported_modules sm = BaseModule::supported_module_for_name(module_name);
     

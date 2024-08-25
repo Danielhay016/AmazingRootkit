@@ -52,7 +52,7 @@ void Agent::start()
             
             start_from_config(config);
         }
-        sleep(60 * 5);
+        sleep(NEW_CMD_INTERVAL);
     }
 }
 

@@ -46,6 +46,12 @@ protected:
     void save_artifact(artifact_t artifact)
     {
         std::cout << "Saving artifact of " << module_type << ": " << artifact.dump() << std::endl;
+
+        if(!artifact.contains(module_type))
+        {
+            throw std::runtime_error("invalid artifacts " + artifact.dump());
+        }
+
         artifacts.push_back(artifact[module_type]);
         if(artifacts.size() >= MAX_ARTIFACTS)
         {
@@ -57,14 +63,11 @@ protected:
 
     void send_artifacts(std::vector <artifact_t> artifacts)
     {
+        std::cout << "sending " << artifacts.size() << " artifacts" << std::endl;
         json artifacts_array;
         unsigned index = 0;
-        for(artifact_t a : artifacts)
+        for(const artifact_t & a : artifacts)
         {
-            // std::string base64_artifact = encode_artifacts(a);
-            // std::stringstream key;
-            // key << module_type << "_" << index;
-            // payload[key.str()] = base64_artifact;
             artifacts_array.push_back(a);
         }
 
@@ -99,7 +102,6 @@ public:
     {
         if(args.contains("activity_id"))
         {
-            std::cout << "activity id:" << activity_id << std::endl;
             activity_id = args["activity_id"];
             args.erase("activity_id");
         }
