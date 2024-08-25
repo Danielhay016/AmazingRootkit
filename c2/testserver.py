@@ -68,10 +68,10 @@ client, db, campaign_collection, last_activity_collection = initialize_db()
 @app.route('/c2/register/', methods=['POST'])
 def registration():
     print('hi')
-    data = request.get_data(as_text=True)  # קבלת הנתונים כטקסט
-    print('Raw data:', data)  # הדפסת הנתונים כפי שהם
+    data = request.get_data(as_text=True)  
+    print('Raw data:', data) 
     try:
-        json_data = json.loads(data)  # ניסיון לפרוס את הנתונים ל-JSON
+        json_data = json.loads(data) 
         client_id = json_data.get("client_id")
         print('Client ID:', client_id)
     except json.JSONDecodeError as e:
@@ -254,8 +254,9 @@ def send_command():
     command_doc = db[queue_collection_name].find_one_and_delete({}, sort=[('timestamp', 1)])
 
     if command_doc:
-        #activity_id = command_doc.get('_id')
         command_data = command_doc.get('json')
+        command_data = json.loads(command_data)
+        print(type(command_data))
         return jsonify(command_data), 200
     else:
         return jsonify({'status': 'error', 'message': 'No commands in queue'}), 200
