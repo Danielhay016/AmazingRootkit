@@ -74,7 +74,7 @@ protected:
         
         std::cout << "Sending artifacts to server: " << payload.dump() << std::endl;
 
-        Communicator::getInstance().send_artifact(payload);
+        Communicator::getInstance().send_artifact(&payload);
     }
 
     // std::string encode_artifacts(artifact_t a)
@@ -86,7 +86,6 @@ private:
     static const char * module_names[];
 
 public:
-
     const std::string & get_module_type()
     {
         return module_type;
@@ -102,6 +101,7 @@ public:
         {
             std::cout << "activity id:" << activity_id << std::endl;
             activity_id = args["activity_id"];
+            args.erase("activity_id");
         }
     }
 
