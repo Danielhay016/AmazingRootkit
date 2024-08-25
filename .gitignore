@@ -8,6 +8,10 @@
 *.order
 *.cmd
 
+key.pem
+cert.pem
+c2/.env
+
 dummy
 build/*
 
