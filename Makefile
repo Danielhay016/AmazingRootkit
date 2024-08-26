@@ -5,7 +5,7 @@ CXXFLAGS += -Wall -g #/usr/include/curl
 
 # Libraries
 
-LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread -lcurl -lX11 -lpng
+LIBS = -lssl -lcrypto -lboost_system -lboost_filesystem -lz -lminizip -pthread -lcurl -lX11 -lpng -lsqlite3 `pkg-config --cflags --libs libsecret-1`
 
 # Directories
 SRC_DIR = . # Define your source directory

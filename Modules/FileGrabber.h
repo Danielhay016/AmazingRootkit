@@ -14,6 +14,7 @@ private:
     int run_grab_task(std::string working_dir, std::string directory, std::string filter, std::string task_id);
     int parse_tasks(std::string working_dir, nlohmann::json j);
     std::vector<unsigned char> readFile(const std::string& filepath);
+    void send_err(json ret_json, std::string str);
 
 public:
     FileGrabber() = delete;

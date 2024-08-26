@@ -7,6 +7,9 @@
 *.symvers
 *.order
 *.cmd
+C:\Users\Daniel.Hay\Desktop\AmazingRootkit\C2\.env
+key.pem
+cert.pem
 
 key.pem
 cert.pem

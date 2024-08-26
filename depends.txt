@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt install g++
 sudo apt install libboost-system-dev libboost-filesystem-dev zlib1g-dev libminizip-dev
 sudo apt install libx11-dev libpng-dev
@@ -6,3 +7,9 @@ sudo apt install libssl
 sudo apt install libssl-dev
 sudo apt-get install libcurl4-openssl-dev
 sudo apt-get install libcurl4
+
+# Install sqlite3 and its development library
+sudo apt-get install -y sqlite3 libsqlite3-dev
+
+# Install libsecret development library
+sudo apt-get install -y libsecret-1-dev

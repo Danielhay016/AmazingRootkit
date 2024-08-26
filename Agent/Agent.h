@@ -51,10 +51,7 @@ private:
         for (auto& el : config.items())
         {
             std::string module_name = el.key();
-            std::cout << "key: " << module_name << std::endl;
             json val = el.value();
-            std::cout << "val: " << val << std::endl;
-
             if(val.contains("restart"))
             {
                 restart = (val["restart"] == "1");
