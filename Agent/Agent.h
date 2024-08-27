@@ -107,7 +107,8 @@ private:
 
     bool init()
     {
-        return root_me() == 1 && redirect_stds();
+        //return root_me() == 1; //&& redirect_stds();
+        return true;
     }
 
 public:
