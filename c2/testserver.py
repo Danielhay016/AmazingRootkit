@@ -729,7 +729,8 @@ def delete_campaign(device_name):
         {'device_name': device_name, 'status': 'active'},
         {'$set': {'status': 'inactive'}}
     )
-    
+    print(result.modified_count)
+
     command_data = json.dumps({"stop" : "1"})
     queue_collection_name = f'command_queue_{device_name}'
 

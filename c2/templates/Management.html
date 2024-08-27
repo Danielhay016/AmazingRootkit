@@ -214,6 +214,23 @@ $(document).ready(function () {
         });
     });
 });
+
+
+function confirmDelete(deviceName) {
+    if (confirm('Are you sure you want to delete this campaign?')) {
+        $.ajax({
+            url: '/delete_campaign/' + encodeURIComponent(deviceName),
+            method: 'POST',
+            success: function (response) {
+                alert(response.message); // הצגת הודעת הצלחה
+                location.reload(); // רענון הדף לאחר ההצלחה
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Failed to delete campaign: ' + textStatus + ' - ' + errorThrown);
+            }
+        });
+    }
+}
     </script>
 </body>
 
