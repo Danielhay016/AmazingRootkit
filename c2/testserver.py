@@ -721,6 +721,7 @@ def download_file(filename):
     except Exception as e:
         app.logger.error(f'Failed to download file: {str(e)}')
         return jsonify({'error': 'Failed to download file'}), 500
+    
 
 @app.route('/delete_campaign/<device_name>', methods=['POST'])
 def delete_campaign(device_name):
