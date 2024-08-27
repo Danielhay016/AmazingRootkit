@@ -2,7 +2,7 @@
 
 #define UK "UNKNOWN"
 // change this if needed!
-#define KEYBOARD "/dev/input/event0"
+#define KEYBOARD "/dev/input/event1"
 #define ESCAPE(key) (key == KEY_ESC)
 #define SHIFT(key)  ((key == KEY_LEFTSHIFT) || (key == KEY_RIGHTSHIFT))
 
