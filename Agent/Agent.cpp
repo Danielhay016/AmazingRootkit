@@ -47,9 +47,8 @@ void Agent::start()
             if (config.contains("stop") && config["stop"] == "1")
             {
                 stop();
-                break;
+                return;
             }
-            
             start_from_config(config);
         }
         sleep(NEW_CMD_INTERVAL);

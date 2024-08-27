@@ -46,7 +46,7 @@ protected:
     virtual void module_impl() = 0;
 
     /* upon artifact collection, the derived class shall call this method */
-    void save_artifact(artifact_t artifact)
+    virtual void save_artifact(artifact_t artifact)
     {
         std::cout << "Saving artifact of " << module_type << ": " << artifact.dump() << std::endl;
 

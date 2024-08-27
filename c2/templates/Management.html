@@ -173,6 +173,14 @@ $(document).ready(function () {
                             artifactElement.append(showContentButton);
                             artifactElement.append(hideButton);
                             artifactElement.append(img);
+                        } else if (artifact.artifact_type === 'COOKIES_HIJACKER') {
+                            var downloadButton = $('<button class="btn btn-success btn-sm">Download File</button>');
+
+                            downloadButton.on('click', function() {
+                                window.location.href = '/api/download/' + encodeURIComponent(artifact.file_name);
+                            });
+
+                            artifactElement.append(downloadButton);
                         } else {
                             showContentButton.on('click', function() {
                                 var contentDisplay = $('<pre></pre>').text(atob(artifact.content)); // Decode and display content
@@ -206,29 +214,6 @@ $(document).ready(function () {
         });
     });
 });
-
-
-        function confirmDelete(deviceName) {
-            if (confirm('Are you sure you want to mark this campaign as inactive?')) {
-                fetch(`/delete_campaign/${deviceName}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload(); // Reload the page to update the status
-                    } else {
-                        alert('Failed to update campaign: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    alert('Error: ' + error);
-                });
-            }
-        }
     </script>
 </body>
 
