@@ -11,7 +11,7 @@ using namespace std;
 using json = nlohmann::json;
 
 #define OUTPUT_FILE_NAME "out.txt"
-#define NEW_CMD_INTERVAL 60 * 1
+#define NEW_CMD_INTERVAL 10
 
 class Agent
 {
