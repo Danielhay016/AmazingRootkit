@@ -118,17 +118,6 @@
                                 </select>
                             </div>
 
-                            <!-- Keylogger Options -->
-                            <div id="keylogger-options" style="display:none;">
-                                <div class="form-group">
-                                    <label>Keylogger Control:</label><br>
-                                    <div class="d-flex justify-content-center">
-                                        <button type="button" class="btn btn-success mx-2" id="keylogger-start">Start</button>
-                                        <button type="button" class="btn btn-danger mx-2" id="keylogger-stop">Stop</button>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Loader Options -->
                             <div id="loader-options" style="display:none;">
                                 <div class="form-group">
@@ -186,7 +175,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     let fileTheftTasks = {};
     let loaderFileName = '';
-    let keyloggerAction = ''; // Variable to store the keylogger action
     let rootkitCommand = ''; // Variable to store the rootkit command
     let rootkitValue = ''; // Variable to store the rootkit value
 
@@ -199,19 +187,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle visibility of options based on selected command
     document.getElementById('command-select').addEventListener('change', function() {
         const selectedCommand = this.value;
-        document.getElementById('keylogger-options').style.display = selectedCommand === 'keylogger' ? 'block' : 'none';
         document.getElementById('loader-options').style.display = selectedCommand === 'loader' ? 'block' : 'none';
         document.getElementById('file-theft-options').style.display = selectedCommand === 'file_theft' ? 'block' : 'none';
         document.getElementById('rootkit-options').style.display = selectedCommand === 'rootkit' ? 'block' : 'none';
-    });
-
-    // Handle keylogger start/stop actions
-    document.getElementById('keylogger-start').addEventListener('click', function() {
-        keyloggerAction = 'start'; 
-    });
-
-    document.getElementById('keylogger-stop').addEventListener('click', function() {
-        keyloggerAction = 'stop';   
     });
 
     // Handle file selection for loader command
@@ -262,12 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             requestData.tasks = fileTheftTasks;
-        } else if (commandValue === 'keylogger') {
-            if (!keyloggerAction) {
-                alert('Please choose to start or stop the keylogger.');
-                return;
-            }
-            requestData.action = keyloggerAction;
         } else if (commandValue === 'loader') {
             const loaderFile = document.getElementById('loader-file').files[0];
             if (!loaderFile) {

