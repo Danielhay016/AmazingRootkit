@@ -17,7 +17,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # MongoDB Configuration
-MONGO_URI = os.getenv('MONGO_URI')
+MONGO_URI = "mongodb://localhost:27017/c2_server" #os.getenv('MONGO_URI')
 
 # Initialize MongoDB client and GridFS
 client = MongoClient(MONGO_URI)
@@ -660,5 +660,5 @@ if __name__ == '__main__':
     #import IPython; IPython.embed()
     import venv
     #print(open(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem','rb').read(100))
-    #app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem', r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\key.pem'))
-    app.run(debug=True, host='0.0.0.0',port=1234)
+    app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'cert.pem', r'key.pem'))
+    #app.run(debug=True, host='0.0.0.0',port=1234)

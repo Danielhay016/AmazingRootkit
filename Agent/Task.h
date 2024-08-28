@@ -31,6 +31,11 @@ public:
         stop();
     };
 
+    const bool is_running()
+    {
+        return m->is_running();
+    }
+
     void run()
     {
         if(m.get())

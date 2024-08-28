@@ -99,6 +99,11 @@ public:
 
     static supported_modules_enum supported_module_for_name(const std::string & module_name);
 
+    const bool is_running()
+    {
+        return run_;
+    }
+
     BaseModule(const BaseModule &) = delete;
 
     BaseModule(std::string mtype, const json & module_args) : args(module_args), module_type(mtype), run_(true) 

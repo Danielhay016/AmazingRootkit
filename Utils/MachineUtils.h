@@ -62,5 +62,40 @@ public:
         return random_string;
     }
 
+    static bool add_etc_hosts_entry(const std::string & entry)
+    {
+        std::fstream hosts_file("/etc/hosts", std::ios::in | std::ios::out | std::ios::app);
+        
+        if (!hosts_file.is_open()) 
+        {
+            std::cerr << "Error: Unable to open /etc/hosts for writing. Are you running as root?" << std::endl;
+            return false;        
+        }
 
+        std::string line;
+        while (std::getline(hosts_file, line)) 
+        {
+            if (line.find(entry) != std::string::npos) 
+            {
+                std::cout << "host enty already exists " << std::endl;
+                return true;
+            }
+        }
+
+        hosts_file.clear(); 
+        hosts_file.seekp(0, std::ios::end);
+        hosts_file << entry << std::endl;
+
+        std::cout << "host enty added successfully " << std::endl;
+        
+        if (hosts_file.fail()) 
+        {
+            std::cerr << "Error: Failed to write to /etc/hosts" << std::endl;
+            hosts_file.close();
+            return false;
+        }
+
+        hosts_file.close();
+        return true;
+    }
 };

