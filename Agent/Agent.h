@@ -29,6 +29,7 @@ private:
         {
             t->run();
         }
+        tasks.clear();
         
     }
 
