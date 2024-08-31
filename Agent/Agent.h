@@ -29,7 +29,6 @@ private:
         {
             t->run();
         }
-        tasks.clear();
         
     }
 
@@ -48,6 +47,8 @@ private:
     {
         std::cout << "start_from_config" << std::endl;
         bool restart;
+
+        tasks.clear();
 
         for (auto& el : config.items())
         {
