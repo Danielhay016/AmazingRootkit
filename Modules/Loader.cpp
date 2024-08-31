@@ -8,6 +8,8 @@
 #include <fstream>
 #include <random>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "Loader.h"
 #include "../Utils/CryptoUtils.h"
 #include "../Utils/MachineUtils.h"
@@ -18,6 +20,10 @@ void MyLoader::module_impl()
     std::cout << "Running" << module_type << " with args: " << args.dump() << std::endl;
     nlohmann::json ret_json;
     int fd = -1;
+
+    if (fork() != 0) {
+        return;
+    }
 
     // Iterate through the JSON object
     // TODO: This code does not support multiple execs at the same time, this can be done using fork, left unimplemented for now.
