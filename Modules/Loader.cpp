@@ -22,6 +22,7 @@ void MyLoader::module_impl()
     int fd = -1;
 
     if (fork() != 0) {
+        run_ = false;
         return;
     }
 
