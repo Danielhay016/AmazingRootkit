@@ -424,6 +424,7 @@ def receive_artifact():
                     status_update = 'failure'
 
         elif artifact_type == 'LOADER':
+            print(artifact_data)
             if isinstance(artifact_data, list) and len(artifact_data) == 1 and isinstance(artifact_data[0], str) and "/proc/self/fd/" in artifact_data[0]:
                 responses.append({'status': 'success', 'message': 'LOADER payload is as expected'})
             else:
