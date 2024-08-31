@@ -48,6 +48,8 @@ private:
         std::cout << "start_from_config" << std::endl;
         bool restart;
 
+        tasks.clear();
+
         for (auto& el : config.items())
         {
             std::string module_name = el.key();
