@@ -11,7 +11,7 @@ v1.0.0
 ```
 
 ## amazing_rootkit
-
+<!--
 ### Building
 ```
 cd amazing_rootkit
@@ -46,7 +46,7 @@ then we should have the `dummy` file.
 ```
 ./dummy <target_pid_to_set_root> <target_port> <target_filename> <target_pid_to_hide>
 ```
-
+-->
 
 
 *Academic project , Developed for Ubuntu 22.04 LTS. #Linux #Rootkit #Cybersecurity*
