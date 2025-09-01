@@ -47,6 +47,6 @@ then we should have the `dummy` file.
 ./dummy <target_pid_to_set_root> <target_port> <target_filename> <target_pid_to_hide>
 ```
 -->
-![Video Title](https://img.youtube.com/vi/9wiz0tUitgo/maxresdefault.jpg)
+[![Video Title](https://img.youtube.com/vi/9wiz0tUitgo/0.jpg)](https://www.youtube.com/watch?v=9wiz0tUitgo)
 
 *Academic project , Developed for Ubuntu 22.04 LTS. #Linux #Rootkit #Cybersecurity*
